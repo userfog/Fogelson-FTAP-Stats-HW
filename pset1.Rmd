@@ -1,0 +1,46 @@
+---
+title: "FTAP Stats Pset1"
+author: "Zachary Fogelson"
+date: "July 12, 2015"
+output: html_document
+---
+
+## Problem 1
+vv  
+  + lemma: If the mean of a dataset X is $\mu_0$ then the mean of a dataset f(X), where a linear function, is $f(\mu_0)$
+  
+  $$ \mu_0 = \frac{\Sigma_{i=1}^{N}x_i}{N} = \frac{x_1 + x_2 + \ldots + x_N}{N} $$
+  $$ f(x) = b + mx $$
+  $$ f(X) = f(x_1), f(x_2), \ldots, f(x_N)$$
+  $$ \mu_1 = \frac{\Sigma_{i=1}^{N}f(x_i)}{N} = \frac{b + mx_1  + b + mx_2 + \ldots + b + mx_N}{N} $$
+  $$ \mu_1 = \frac{N \dot b}{N} + m \frac{ (x_1  + x_2 + \ldots +, x_N)}{N} = b + m\mu_0 $$
+  
+  + lemma: 
+
+  a. Show that $cov((c_0 + c_1 \cdot x), (d_0 + d_1 \cdot y)) = c_1 \cdot d_1 cov(x,y)$
+  $$ cov(x,y) = \frac{\Sigma_{i=1}^{N}(x_i - \mu_x)(y_i - \mu_y)}{N} $$
+  $$ cov(f(x), g(y)) = \frac{\Sigma_{i=1}^{N}(f(x_i) - f(\mu_x))(g(y_i) - g(\mu_y))}{N} = $$
+  $$\frac{((c_0) + c_1x_1 - ((c_0) + c_1\mu_x)  + \ldots + (c_0) + c_1x_N - ((c_0) + c_1\mu_x))((d_0) + d_1y_1 - ((d_0) + d_1\mu_y)  + \ldots + (d_0) + d_1y_N - ((d_0) + d_1\mu_y))}{N}$$
+  $$\frac{(c_1x_1 - c_1\mu_x  + \ldots + c_1x_N - c_1\mu_x)(d_1y_1 - d_1\mu_y  + \ldots + d_1y_N - d_1\mu_y)}{N}$$
+  $$cov(f(x), g(y)) = \frac{c_1d1(x_1 - \mu_x)(y_1 + \mu_y) + \ldots + c_1d_1(x_N-\mu_x)(y_N-\mu_y)}{N} = c_1 d_1 \frac{\Sigma_{i=1}^N(x_i - \mu_x)(y_i - \mu_y)}{N} = c_1d_1 cov(x,y) $$
+  
+  
+  b. Show that $corr((c_0 + c_1 \cdot x), (d_0 + d_1 \cdot y)) = corr(x,y)$
+
+  $$ corr(x,y) = \frac{cov(x,y)}{\sigma_x\sigma_y} $$
+
+
+* Problem 2
+
+```{r}
+library(xts)
+summary(cars)
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
