@@ -5,9 +5,9 @@ date: "July 12, 2015"
 output: html_document
 ---
 
-## Problem 1
-vv  
-  + lemma: If the mean of a dataset X is $\mu_0$ then the mean of a dataset f(X), where a linear function, is $f(\mu_0)$
+### Problem 1
+
+  + lemma 1: If the mean of a dataset X is $\mu_0$ then the mean of a dataset f(X), where f is a linear function, is $f(\mu_0)$
   
   $$ \mu_0 = \frac{\Sigma_{i=1}^{N}x_i}{N} = \frac{x_1 + x_2 + \ldots + x_N}{N} $$
   $$ f(x) = b + mx $$
@@ -15,32 +15,329 @@ vv
   $$ \mu_1 = \frac{\Sigma_{i=1}^{N}f(x_i)}{N} = \frac{b + mx_1  + b + mx_2 + \ldots + b + mx_N}{N} $$
   $$ \mu_1 = \frac{N \dot b}{N} + m \frac{ (x_1  + x_2 + \ldots +, x_N)}{N} = b + m\mu_0 $$
   
-  + lemma: 
+  + lemma 2: If the standard deviation of a dataset X is $\sigma_0$ then the standard deviation of a dataset f(X), where $f(x) = c_0 + c_1x$, is $\sigma_1 = c_1 \sigma_0$
+  $$ \sigma_x^2 = \frac{\Sigma_{i=1}^N (x_i - \mu_x)}{N} $$
+  Based on lemma 1, we know that the mean of f(X) is f($\mu_x$)
+  $$ \sigma_x^2 = \frac{((f(x_1)-f(\mu_x))^2 + \ldots + (f(x_N) - f(\mu_x))^2}{N} $$
+  At any given step of the summation $f(x_i)-f(\mu_x) = c_0 + c1x_i - (c0 +c1\mu_x) = c1(x_i - \mu_x)$
+  $$ \sigma_x^2 = \frac{(c_1(x_i - \mu_x))^2 + \ldots + (c1(x_i - \mu_x))^2}{N}  = \frac{c1^2(x_i - \mu_x)^2 + \ldots + c1^2(x_i - \mu_x)^2}{N}$$
+  $$ \sigma_x^2 = c_1^2\frac{(x_i - \mu_x)^2 + \ldots + (x_i - \mu_x)^2}{N} = c_1^2 \sigma_0^2 $$
+  $$ \sigma_x = c_1 \sigma_0 $$
+  
 
-  a. Show that $cov((c_0 + c_1 \cdot x), (d_0 + d_1 \cdot y)) = c_1 \cdot d_1 cov(x,y)$
+#### a. Show that $cov((c_0 + c_1 \cdot x), (d_0 + d_1 \cdot y)) = c_1 \cdot d_1 cov(x,y)$
   $$ cov(x,y) = \frac{\Sigma_{i=1}^{N}(x_i - \mu_x)(y_i - \mu_y)}{N} $$
   $$ cov(f(x), g(y)) = \frac{\Sigma_{i=1}^{N}(f(x_i) - f(\mu_x))(g(y_i) - g(\mu_y))}{N} = $$
-  $$\frac{((c_0) + c_1x_1 - ((c_0) + c_1\mu_x)  + \ldots + (c_0) + c_1x_N - ((c_0) + c_1\mu_x))((d_0) + d_1y_1 - ((d_0) + d_1\mu_y)  + \ldots + (d_0) + d_1y_N - ((d_0) + d_1\mu_y))}{N}$$
-  $$\frac{(c_1x_1 - c_1\mu_x  + \ldots + c_1x_N - c_1\mu_x)(d_1y_1 - d_1\mu_y  + \ldots + d_1y_N - d_1\mu_y)}{N}$$
-  $$cov(f(x), g(y)) = \frac{c_1d1(x_1 - \mu_x)(y_1 + \mu_y) + \ldots + c_1d_1(x_N-\mu_x)(y_N-\mu_y)}{N} = c_1 d_1 \frac{\Sigma_{i=1}^N(x_i - \mu_x)(y_i - \mu_y)}{N} = c_1d_1 cov(x,y) $$
+  
+  $$\frac{(c_0 + c_1x_1 - (c_0 + c_1\mu_x))(d_0 + d_1y_1 - (d_0 + d_1\mu_y))  + \ldots + (c_0 + c_1x_N - (c_0 + c_1\mu_x))(d_0 + d_1y_N - (d_0 + d_1\mu_y))}{N}$$
+  
+  $$\frac{(c_1x_1 - c_1\mu_x)(d_1y_1 - d_1\mu_y)  + \ldots + (c_1x_N - c_1\mu_x)(d_1y_N - d_1\mu_y)}{N}$$
+  $$cov(f(x), g(y)) = \frac{c_1d1(x_1 - \mu_x)(y_1 - \mu_y) + \ldots + c_1d_1(x_N-\mu_x)(y_N-\mu_y)}{N} = c_1 d_1 \frac{\Sigma_{i=1}^N(x_i - \mu_x)(y_i - \mu_y)}{N} = c_1d_1 cov(x,y) $$
   
   
-  b. Show that $corr((c_0 + c_1 \cdot x), (d_0 + d_1 \cdot y)) = corr(x,y)$
+#### b. Show that $corr((c_0 + c_1 \cdot x), (d_0 + d_1 \cdot y)) = corr(x,y)$
 
   $$ corr(x,y) = \frac{cov(x,y)}{\sigma_x\sigma_y} $$
+  From part a we know that $cov(f(x), g(y)) = c_1d_1 cov(x,y)$ and from lemma 2 we know that $sigma_1 = \sigma_x = c_1 \sigma_0$ when a linear function f is applied to a data set X therefore,
+  $$ corr(f(x),g(y)) = \frac{c_1d_1 cov(x,y)}{c_1d_1\sigma_x\sigma_y} = corr(x,y)$$
 
-
-* Problem 2
-
+### Problem 2
+#### a.
 ```{r}
 library(xts)
-summary(cars)
+setwd("/Users/zachfogelson/Developer/FTAP Stats HW")
+# Assuming that conret is in current working directory
+conret <- read.csv("conret.csv", header = TRUE)
+
+titles <- "Histogram of %s Monthly Returns"
+xlabel <- "Monthly Return"
+
+# USA
+hist(conret$usa, 
+     main   = sprintf(sprintf(titles, "USA")), 
+     xlab   = xlabel, 
+     border ="black", 
+     col    = "blue",
+     breaks = 10)
+
+# Italy
+hist(conret$italy, 
+     main   = sprintf(titles, "Italy"), 
+     xlab   = xlabel, 
+     border = "black", 
+     col    = "red",
+     breaks = 10)
 ```
 
-You can also embed plots, for example:
 
-```{r, echo=FALSE}
-plot(cars)
+#### b. 
+Based on these results, Italy's returns appear more spread out because its
+monthly returns have a larger range--(-.2,.2)--than those of the USA--
+(-.1 to .1).
+
+#### c.
+```{r}
+# USA
+print(mean(conret$usa))  # 0.01345794
+print(sd(conret$usa))  # 0.03328275
+
+# Italy
+print(mean(conret$italy))  # 0.006074766
+print(sd(conret$italy))  # 0.07126561
+```
+Because the standard deviation of Italy's monthly returns is larger 
+than the standard deviation of the United States' monthly returns
+this supports the conclusion that Italy's monthly returns are more spread
+out than those of the United States.
+
+#### d.
+According to the empirical rule 95% of all data should be within 2 standard
+deviations of the mean.
+
+```{r}
+getRange <- function(m, s){
+  list(low <- m - 2 * s, high <- m + 2 * s)
+}
+
+percentageResultsInRange <- function(arr, r){
+    acceptable <- arr[arr > r[1] & arr < r[2]]
+    length(acceptable) / length(arr)
+}
+
+usaRange <- getRange(mean(conret$usa), sd(conret$usa))
+italyRange <- getRange(mean(conret$italy), sd(conret$italy))
+
+print(percentageResultsInRange(conret$usa, usaRange))  # 0.953271
+print(percentageResultsInRange(conret$italy, italyRange))  # 0.9439252
+```
+Yes each of the intervals are approximately correct, the USA has slightly 
+more data within two standard deviations while the Italian data has 
+slightly less.
+
+#### e.
+```{r}
+plot(conret$usa, 
+     conret$italy, 
+     main = "US returns vs. Italian returns", 
+     xlab = "US Returns",
+     ylab = "Italian Returns")
+```
+Based on the scatter plot, I expect the correlation between US and Italian 
+returns is approximately .6
+
+
+#### f
+```{r}
+print(cov(conret$usa, conret$italy, use = "all.obs"))  # 0.0005693617
+print(cor(conret$usa, conret$italy, use = "all.obs"))  # 0.240043
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+My guess compared to the actual correlation was far too high
+
+### Problem 3
+#### a
+Assuming that oil_gdp.csv is in current working directory
+```{r}
+oil_gdp <- read.csv("oil_gdp.csv", header = TRUE)
+cpiOverTime1 = xts(x=oil_gdp$G_CPI, order.by=as.Date(oil_gdp$OBS, "%m/%d/%y"))
+cpiOverTime2 = xts(x=oil_gdp$G_CPI.1, order.by=as.Date(oil_gdp$OBS, "%m/%d/%y"))
+
+plot(as.xts(cpiOverTime1), col="red", xlab = "CPI", ylab = "Time", main = "CPIs vs Time", minor.ticks = F)
+lines(as.xts(cpiOverTime2))
+legend('bottomleft', c("G_CPI","G_CPI.1"), pch=1, col=c('red', 'black'), bty='o', cex=.75)
+```
+
+The G\_CPI is more volatile then than the G_CPI.1 series
+
+#### b
+```{r}
+print(mean(oil_gdp$G_CPI))  # 0.03394408
+print(var(oil_gdp$G_CPI))  # 0.001356836
+
+print(mean(oil_gdp$G_CPI.1))  # 0.03505742
+print(var(oil_gdp$G_CPI.1))  # 0.0004995316
+```
+
+#### c
+Comparing the plots, when G\_CPI is high, G\_CPI.1 is also high but less so. 
+This is most apparent in the early 1980s but there are also times when 
+G\_CPI collapses and G\_CPI.1 appears to track it such as circa 1986 as well as
+circa 2009.
+
+#### d 
+```{r}
+print(cov(oil_gdp$G_CPI, oil_gdp$G_CPI.1, use = "all.obs"))  # 0.0004749797
+print(cor(oil_gdp$G_CPI, oil_gdp$G_CPI.1, use = "all.obs"))  # 0.5769391
+```
+
+#### e
+Because the correlation is positive, it means that as the G_CPI increases 
+it tends to be the case that G_CPI.1 also increases. The relationship
+also appears to be strong because the magnitude of correlation is neither
+very strong nor weak. 
+
+# f
+```{r}
+print(cor(oil_gdp$G_CPI.1[seq(length=length(oil_gdp$G_CPI)-1, from=2)],
+    oil_gdp$G_CPI[seq(length=length(oil_gdp$G_CPI)-1, from=1)]))  # 0.8505302
+```
+
+
+### Problem 4
+#### a
+```{r}
+conret$usaItaly <- .5 * conret$usa + .5 * conret$italy
+print(mean(conret$usaItaly))  # 0.009766355
+print(sd(conret$usaItaly))  # 0.04279384
+```
+
+#### b
+```{r}
+linComboMean <- function(w1, m1, w2, m2){
+  w1*m1 + w2*m2
+}
+linComboVar <- function(w1, sd1, w2, sd2, cr){
+  w1^2 * sd1^2 + w2^2 * sd2^2 + 2 * w1 * w2 * cr * sd1 * sd2
+}
+
+print(linComboMean(.5, mean(conret$usa), .5, mean(conret$italy)))  # 0.009766355
+print(linComboVar(.5, sd(conret$usa),
+                  .5, sd(conret$italy),
+                  cor(conret$usa, conret$italy, use = "all.obs"))^(1/2))  # 0.04279384
+```
+
+#### c
+```{r}
+# .25 USA, .75 Italy
+print(linComboMean(.25, mean(conret$usa), .75, mean(conret$italy)))  # 0.007920561
+print(linComboVar(.25, sd(conret$usa),
+                  .75, sd(conret$italy),
+                  cor(conret$usa, conret$italy, use = "all.obs"))^(1/2))  # 0.05603179
+
+# .75 USA, .25 Italy
+print(linComboMean(.75, mean(conret$usa), .25, mean(conret$italy)))  # 0.01161215
+print(linComboVar(.75, sd(conret$usa),
+                  .25, sd(conret$italy),
+                  cor(conret$usa, conret$italy, use = "all.obs"))^(1/2))  # 0.03397115
+
+investRatio <- list(0, .25, .5, .75, 1)
+investMean <- list()
+investSD <- list()
+
+for (el in investRatio){
+  investMean <- c(investMean, linComboMean(el, mean(conret$usa), 1 - el, mean(conret$italy)))
+  investSD <- c(investSD, linComboVar(el, sd(conret$usa),
+                          1-el, sd(conret$italy),
+                          cor(conret$usa, conret$italy, use = "all.obs"))^(1/2))
+}
+
+plot(investSD, 
+     investMean, 
+     main = "Mean Return vs SD of Portfollio", 
+     xlab = "Standard Deviation",
+     ylab = "Mean")
+
+```
+
+#### Problem 5
+meaning | value | probability
+------- |------ | -----------
+Fails   | 1     | .2
+Meets   | 2     | .5
+Exceeds | 3     | .3
+Total   |       | 1
+
+##### a. 
+Yes, this is a valid rando variable because the sum of the proabilities of all the possible outcomes adds to 1
+
+##### b. 
+$P(X = 2 \cup X = 3) = 1 - P(X = 1) = .8$
+
+
+#### Problem 6
+  X/Y   | Neagtive = 0 | Positive = 1 | Total
+------- |------ | ----------- | -----
+Below = 1   | .15   | .05         | .2
+Meets = 2   | .2    | .3          | .5
+Exceeds = 3 | .1    | .2          | .3
+Total   | .45   | .55         | 1
+
+##### a
+$P(X = 2 \cap Y = 1) = .3$
+
+##### b
+$P(Y = 1) = .55$
+
+##### c
+$P(X = 2) = .5$
+
+
+#### Problem 7
+  $X_{i+1}$/$X_i$ | Recession = 0 | Expansion = 1   | Total
+----------------  |-------------  | -----------     | -----
+Recession = 0     | .2            | .15             | .35
+Expansion = 1      | .15           | .5              | .65
+Total             | .35           | .65             | 1
+
+##### a
+$P(x_i = 1 \cap x_{i+1} = 1) \stackrel{?}{\ne} P(x_i = 1) P(x_{i+1} = 1)$
+$$.5 \stackrel{?}{\ne} .65^2$$
+$$ .5 \ne .4225$$
+
+Therefore, these events are not statistically independent.
+
+##### b
+Yes, $X_i$ and $X_{i+1}$ are identically distributed.
+
+##### c
+$P(X_{i+1} = 0) = .35$
+
+##### d
+$P(X_{i+1} = 0 | X_i = 0) = \frac{.2}{.35} = .5714$
+$P(X_{i+1} = 1 | X_i = 0) = \frac{.15}{.35} = .4286$
+
+##### e
+$P(X_{i+1} = 1 | X_i = 1) = \frac{.5}{.65} = .7692$
+$P(X_{i+1} = 1 | X_i = 1) = \frac{.15}{.65} = .2307$
+
+##### f
+This model suggests that if we are in a recession this year we are more likely to be in a recession next year
+as compared to going from not being in an expansion this year an then going into a recession next year. 
+However, The probability of being in a recession this year and transitioning into a recovery next year is still relatively
+high. If there is an expansion this year, it is highly likely that the expansion will continue into next year
+as compared to going into a recession next year.
+
+#### Problem 8
+$X = $ Manager's Performance
+$X = 1$ implies Manager beat the market
+$X = 0$ implies the market outperformed the manager
+$P(X=1) = .65$
+
+Assume that manager's performance year-to-year is independent.
+
+##### a
+.65
+
+##### b
+.65
+
+##### c
+
+$.65^6 = .075$
+
+##### d
+
+$(1-.65)^6 = .00184$
+
+##### e
+
+Number of times beating the market  | Formal                      | Probability 
+----------------------------------  | ------                      | -----------
+0                                   | ${6  \choose 0} (.35)^6$       |  .001838
+1                                   | ${6  \choose 1} (.35)^5(.65)$  |  .0205
+2                                   | ${6  \choose 2} (.35)^4(.65)^2$|  .0951
+3                                   | ${6  \choose 3} (.35)^3(.65)^3$|  .2355
+4                                   | ${6  \choose 4} (.35)^2(.65)^4$|  .3280
+5                                   | ${6  \choose 5} (.35)(.65)^5$  |  .2437
+6                                   | ${6  \choose 6} (.65)^6$       |  .0754
+
