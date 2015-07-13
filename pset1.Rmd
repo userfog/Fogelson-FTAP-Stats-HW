@@ -236,7 +236,7 @@ plot(investSD,
      main = "Mean Return vs SD of Portfollio", 
      xlab = "Standard Deviation",
      ylab = "Mean")
-
+text(x = investSD, y = investMean, labels = c("0.0 USA", ".25 USA", ".5 USA", ".75 USA", "1.0 USA"), cex = .7, pos = 1)
 ```
 
 #### Problem 5

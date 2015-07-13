@@ -2,7 +2,7 @@
 
 ######## Libraries #########
 
-install.packages("xts")
+# install.packages("xts")
 # install.packages("xtsExtra", repos="http://R-Forge.R-project.org")
 
 library(xts)
@@ -182,4 +182,5 @@ plot(investSD,
      xlab = "Standard Deviation",
      ylab = "Mean")
 
+text(x = investSD, y = investMean, labels = c("0.0 USA", ".25 USA", ".5 USA", ".75 USA", "1.0 USA"))
 
