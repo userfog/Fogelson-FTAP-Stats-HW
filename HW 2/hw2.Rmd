@@ -1,0 +1,50 @@
+---
+title: "FTAP Homework 2"
+author: "Zachary Fogelson"
+date: "July 14, 2015"
+output: html_document
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+library(gdata)
+library(plyr)
+countries <- read.xls(xls = "country portfolios.xlsx", sheet = 1)
+countries <- rename(x = countries, c("Global.Index.Key...Index.Monthly"="key", "Index.Price...Close.Monthly"="price", "Data.Date...Index.Monthly"="date", "Index.Name"="name"))
+
+indexReturns <- data.frame(seq(1:184))
+
+for(i in unique(countries$name)){
+  
+  considering <- countries[countries["name"] == i,]
+  diff <- considering$price[-1] - considering$price[-length(considering$price)]
+  basicReturn <- diff / considering$price[-length(considering$price)]
+  indexReturns <- cbind(indexReturns, basicReturn)
+  indexReturns <- rename(x = indexReturns, c("basicReturn"=i))
+}
+
+drops <- c("seq.1.184.")
+indexReturns <- indexReturns[, !(names(indexReturns) %in% drops)]
+
+varCov <- var(indexReturns, y=indexReturns)
+corMat <- cor(indexReturns, indexReturns)
+
+
+# The correlation matrix contains more interpretable information regarding the degree of 
+# co-movement in each pair of series because it is normalized based on the standard deviations
+
+for(i in unique(countries$names)){
+  barplot(corMat[,i], las=2, cex.names = .9)
+}
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
