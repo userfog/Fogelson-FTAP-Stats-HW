@@ -31,3 +31,4 @@ legend(1,c(names(corMat[,1])), cex=0.6, fill=terrain.colors(10))
 # Clearly from the plot one can see that the cac40 and the FTSE 100 and the Composite DAX index are highly
 # correlated, which makes sense given that we saw in class that European economic performance is highly
 # correlated.
+
