@@ -2,7 +2,7 @@
 title: "FTAP Homework 3"
 author: "Zachary Fogelson"
 date: "July 15, 2015"
-output: html_document
+output: pdf_document
 ---
 
 ### Problem 1
@@ -58,9 +58,9 @@ pnorm(70, mean = 78, sd = sqrt(47.58))
 
 ***b***
 
-Determine P(X > 90) = 1 - P(X < 91):
+Determine P(X > 90) = 1 - P(X < 90):
 ```{r}
-1 - pnorm(91, mean = 78, sd = sqrt(47.58))
+1 - pnorm(90, mean = 78, sd = sqrt(47.58))
 ```
 
 ### Problem 3
