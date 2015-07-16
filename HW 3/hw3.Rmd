@@ -1,5 +1,5 @@
 ---
-title: "FTAP Homewwork 3"
+title: "FTAP Homework 3"
 author: "Zachary Fogelson"
 date: "July 15, 2015"
 output: html_document
@@ -53,14 +53,14 @@ $$Var[Y] = n*p(1-p) = 47.58$$
 Determine P(X < 70):
 
 ```{r}
-pnorm(70, 78, 47.58)
+pnorm(70, mean = 78, sd = sqrt(47.58))
 ```
 
 ***b***
 
 Determine P(X > 90) = 1 - P(X < 91):
 ```{r}
-1 - pnorm(91, 78, 47.58)
+1 - pnorm(91, mean = 78, sd = sqrt(47.58))
 ```
 
 ### Problem 3
@@ -87,7 +87,7 @@ of .5 after sampling 2000 people is the right hand tail of the normal cdf after 
 1 - pnorm(2.68, 0, 1)
 ```
 
-Because .0037 is less than 5% I reject the null hypothesis and with 95% confidence, I expect that I will will the election.
+Because .0037 is less than 5% I reject the null hypothesis and with 95% confidence, I expect that I will win the election.
 
 
 ### Problem 4
@@ -107,6 +107,7 @@ $\frac{1}{4 * .01^2} = n = 2500$
 ### Problem 5
 
 **a**
+
 ```{r}
 z <- qnorm(.995)
 se <- sqrt(.056*(1-.056) / 1200)
@@ -126,11 +127,11 @@ $$Z = \frac{.056 - .05}{\sqrt(\frac{.05(1-.05)}{1200})}$$
 
 ```{r}
 z <- .006 / sqrt((.05*(1-.05))/1200)
-pnorm(-z) + 1 - pnorm(z)
+2 * (1 - pnorm(z))
 ```
 
 Because the probability of getting a sample with a sample default rate of .056 given a true distrobution
-of .05 over 1200 observatoins is 30% and therefore greater than a 5% threshold I fail to reject the null
+of .05 over 1200 observatoins is >30% and therefore greater than a 5% threshold I fail to reject the null
 hypothesis that .05 is the true default rate.
 
 
@@ -155,7 +156,7 @@ $H_0: p_{Aa} - p_{Bb} < 0$
 Alternative:
 $H_1: p_{Aa} - p_{Bb} \ge 0$
 
-$$Z = \frac{\hat{p} - p}{\sqrt(\frac{p(1-p)}{1200})}$$
+$$Z = \frac{(\hat{p} - p) - 0}{\sqrt(\frac{p(1-p)}{1200})}$$
 
 $$Z = \frac{(.048 - .056) - 0}{\sqrt(\frac{.056(1-.056)}{1200} + \frac{.048(1-.048)}{1200})}$$
 
@@ -189,6 +190,4 @@ Because the probability of achieving a difference of 121 sales in 36 weeks given
 
 **b**
 
-```{r}
-qt(.95, 36 - 1)
-```
+As seen above the pvalue is 0.04203608
