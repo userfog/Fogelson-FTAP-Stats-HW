@@ -322,10 +322,10 @@ covXY / varX</code></pre>
 <div id="problem-6" class="section level3">
 <h3>Problem 6</h3>
 <p><strong>a</strong></p>
-<pre class="r"><code>z &lt;- qnorm(.025, 0 , 4)
+<pre class="r"><code>z &lt;- qnorm(.025, 0 , sd = 2)
 ypred &lt;- 2 + 4
 cat(&quot;Lower: &quot;, ypred + z, &quot;Upper: &quot;, ypred - z)</code></pre>
-<pre><code>## Lower:  -1.839856 Upper:  13.83986</code></pre>
+<pre><code>## Lower:  2.080072 Upper:  9.919928</code></pre>
 <p><strong>b</strong></p>
 <p>To find the 95% confidence interval, we need the mean and standard deviation of the sum of two <span class="math">\(\hat{Y}s\)</span>:</p>
 <p>Mean:</p>
@@ -333,10 +333,10 @@ cat(&quot;Lower: &quot;, ypred + z, &quot;Upper: &quot;, ypred - z)</code></pre>
 <p><span class="math">\[E[\frac{\beta_0 + \beta_1 + \epsilon_1 + \beta_0 + \beta_1 + \epsilon_2}{2}]\]</span> <span class="math">\[E[\frac{2(\beta_0 + \beta_1)}{2} + \frac{\epsilon_1 + \epsilon_2}{2}]\]</span> <span class="math">\[E[\beta_0 + \beta_1] + 1/2 * (E[\epsilon_1] + E[\epsilon_2])]\]</span> <span class="math">\[6 + 1/2(0 + 0) = 6\]</span></p>
 <p>Variance: <span class="math">\[Var[\frac{\beta_0 + \beta_1 + \epsilon_1 + \beta_0 + \beta_1 + \epsilon_2}{2}]\]</span> <span class="math">\[Var[\frac{2(\beta_0 + \beta_1)}{2} + \frac{\epsilon_1 + \epsilon_2}{2}]\]</span></p>
 <p>We know from class that the standard errors have no covariance. <span class="math">\[Var[\beta_0 + \beta_1] + (1/2)^2 * (Var[\epsilon_1] + Var[\epsilon_2])\]</span> <span class="math">\[0 + 0 + 1/4 * 2 * 4 = 2\]</span></p>
-<pre class="r"><code>z &lt;- qnorm(.025, 6, 2)
+<pre class="r"><code>z &lt;- qnorm(.025, 6, sqrt(2))
 ypred &lt;- 2 + 4
-cat(&quot;Lower: &quot;, ypred + z, &quot;Upper: &quot;, ypred - z)</code></pre>
-<pre><code>## Lower:  8.080072 Upper:  3.919928</code></pre>
+cat(&quot;Lower: &quot;, ypred - z, &quot;Upper: &quot;, ypred + z)</code></pre>
+<pre><code>## Lower:  2.771808 Upper:  9.228192</code></pre>
 <p><strong>c</strong></p>
 <pre class="r"><code>ypred &lt;- 2 + 4*2
 cat(&quot;Mean: &quot;, ypred, &quot;Var: &quot;, 4)</code></pre>
@@ -367,15 +367,27 @@ sigmasquared * mean(cen$School) / ((length(cen$School)-1)*var(cen$School))</code
 <p><strong>b</strong></p>
 <p>Null Hypothesis: <span class="math">\(H_0: \beta_{1} = 0\)</span></p>
 <p>Alternative: <span class="math">\(H_1: \beta_{1} \ne 0\)</span></p>
-<p><span class="math">\[\frac{b_j - B_j}{\s_{b_j}}\]</span></p>
-<pre class="r"><code>sBj &lt;- sqrt(1/(length(cen$School)-2) * sigmasquared)
-print(sBj)</code></pre>
-<pre><code>## [1] 0.2842456</code></pre>
-<pre class="r"><code>t &lt;- (as.numeric(lm.out$coefficients[&quot;School&quot;]) - 0) / sBj
+<p><span class="math">\[\frac{b_j - B_j}{s_{b_j}}\]</span></p>
+<pre class="r"><code>sBj &lt;- sqrt((1/(length(cen$School)-2)) * sum((lm.out$residuals^2))) / (sqrt(var(cen$School))*sqrt(length(cen$School)-1))
+t &lt;- (as.numeric(lm.out$coefficients[&quot;School&quot;]) - 0) / sBj
+2*(1 - pt(t, length(cen$School)-2))</code></pre>
+<pre><code>## [1] 0</code></pre>
+<p>We are 95% confident we can reject the null hypothesis. This tells us we are confident in the fact that there is a relationship between number of years in school and your wage.</p>
+<p><strong>c</strong></p>
+<p>Null Hypothesis: <span class="math">\(H_0: \beta_{1} = 1\)</span></p>
+<p>Alternative: <span class="math">\(H_1: \beta_{1} \ne 1\)</span></p>
+<pre class="r"><code>t &lt;- (as.numeric(lm.out$coefficients[&quot;School&quot;]) - 1) / sBj
 print(t)</code></pre>
-<pre><code>## [1] 4.73277</code></pre>
+<pre><code>## [1] 3.395897</code></pre>
 <pre class="r"><code>2*(1 - pt(t, length(cen$School)-2))</code></pre>
-<pre><code>## [1] 2.271986e-06</code></pre>
+<pre><code>## [1] 0.0006890356</code></pre>
+<p>We reject the null hypothesis that each year of school translates into exactly one more dollar of income per hour. However, the slope of the best fit line is close to 1.</p>
+<p><strong>d</strong></p>
+<p>The p-value for this test is .00068.</p>
+<p><strong>e</strong></p>
+<pre class="r"><code>t &lt;- qt(.025, length(cen$School) - 2)
+cat(&quot;Lower: &quot;, as.numeric(lm.out$coefficients[&quot;School&quot;]) + t*sBj, &quot;Upper: &quot;, as.numeric(lm.out$coefficients[&quot;School&quot;]) - t*sBj)</code></pre>
+<pre><code>## Lower:  1.14595 Upper:  1.544589</code></pre>
 </div>
 
 

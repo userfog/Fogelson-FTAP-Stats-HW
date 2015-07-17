@@ -237,7 +237,7 @@ mean(stocks$rfGE) - (covXY / varX) * mean(stocks$rfMrkt)
 **a**
 
 ```{r}
-z <- qnorm(.025, 0 , 4)
+z <- qnorm(.025, 0 , sd = 2)
 ypred <- 2 + 4
 cat("Lower: ", ypred + z, "Upper: ", ypred - z)
 ```
@@ -264,9 +264,9 @@ $$Var[\beta_0 + \beta_1] + (1/2)^2 * (Var[\epsilon_1] + Var[\epsilon_2])$$
 $$0 + 0 + 1/4 * 2 * 4 = 2$$
 
 ```{r}
-z <- qnorm(.025, 6, 2)
+z <- qnorm(.025, 6, sqrt(2))
 ypred <- 2 + 4
-cat("Lower: ", ypred + z, "Upper: ", ypred - z)
+cat("Lower: ", ypred - z, "Upper: ", ypred + z)
 ```
 
 **c**
@@ -316,7 +316,7 @@ lm.out <- lm(Wage ~ School, cen)
 $$cov(\beta_0, \beta_1) = \frac{\sigma^2 \bar{x}}{(n-1)s_x^2}$$
 
 ```{r}
-  sigmasquared = sum((lm.out$residuals^2))/length(lm.out$residuals)
+sigmasquared = sum((lm.out$residuals^2))/length(lm.out$residuals)
 sigmasquared * mean(cen$School) / ((length(cen$School)-1)*var(cen$School))
 ```
 
@@ -331,10 +331,8 @@ $H_1: \beta_{1} \ne 0$
 $$\frac{b_j - B_j}{s_{b_j}}$$
 
 ```{r}
-sBj <- sqrt(1/(length(cen$School)-2) * sigmasquared)
-print(sBj)
+sBj <- sqrt((1/(length(cen$School)-2)) * sum((lm.out$residuals^2))) / (sqrt(var(cen$School))*sqrt(length(cen$School)-1))
 t <- (as.numeric(lm.out$coefficients["School"]) - 0) / sBj
-print(t)
 2*(1 - pt(t, length(cen$School)-2))
 ```
 
@@ -344,10 +342,27 @@ We are 95% confident we can reject the null hypothesis. This tells us we are con
 **c**
 
 Null Hypothesis:
-$H_0: \beta_{1} = 0$
+$H_0: \beta_{1} = 1$
 
 Alternative:
-$H_1: \beta_{1} \ne 0$
+$H_1: \beta_{1} \ne 1$
+```{r}
+t <- (as.numeric(lm.out$coefficients["School"]) - 1) / sBj
+print(t)
+2*(1 - pt(t, length(cen$School)-2))
+```
+
+We reject the null hypothesis that each year of school translates into exactly one more dollar of income per hour. However, the slope of the best fit line is close to 1.
+
+**d**
+
+The p-value for this test is .00068.
 
 
+**e**
+
+```{r}
+t <- qt(.025, length(cen$School) - 2)
+cat("Lower: ", as.numeric(lm.out$coefficients["School"]) + t*sBj, "Upper: ", as.numeric(lm.out$coefficients["School"]) - t*sBj)
+```
 
