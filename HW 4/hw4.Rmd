@@ -1,0 +1,353 @@
+---
+title: "FTAP Homework 4"
+author: "Zachary Fogelson"
+date: "July 16, 2015"
+output: html_document
+---
+```{r, include = F}
+library(gdata)
+library(plyr)
+library(knitr)
+library(tseries)
+library(lawstat)
+library(moments)
+library(knitr)
+```
+
+
+### Problem 1
+
+**a**
+
+```{r}
+strat <- read.xls(xls = "strategies.xls")
+plot(strat$Strategy1, main = "Plot 1")
+plot(strat$Strategy2, main = "Plot 2")
+runs.test(strat$Strategy1)
+runs.test(strat$Strategy2)
+```
+
+Based on the runs.test, the strategy1 has a p-value of .09 and the p-value of strategy2 is .049. Therefore, at the 95% confidence level I would reject the hypothesis that Strategy2 is iid but I would fail to reject the hypothesis that Strategy1 is iid.
+
+**b**
+
+```{r}
+jarque.bera.test(strat$Strategy1)
+shapiro.test(strat$Strategy1)
+jarque.bera.test(strat$Strategy2)
+shapiro.test(strat$Strategy2)
+```
+
+Based on the Jarque Bera tests, I would fail to reject the null that either data set is
+not normal.
+
+**c**
+```{r}
+moms <- data.frame(matrix(all.moments(strat$Strategy1, order.max = 4)[-1], ncol=4, nrow=1))
+colnames(moms) <- c("mean", "sd", "skew", "kurt")
+moms <- rbind(moms, all.moments(strat$Strategy2, order.max = 4)[-1])
+row.names(moms) <- c("Startegy1", "Startegy2")
+hist(strat$Strategy1)
+hist(strat$Strategy2)
+kable(head(moms))
+```
+
+For Strategy1 I would model it as the normal distribution $N(.0004,.00009)$ because although the Jacque Bera test said their was a 20% chance that it was normal and the Shapiro test says it had a 40% probability of coming from a normal distribution. Strategy2 has a much lower likelihood of being normal and appears to have some right hand skew. Potentially, I would use a squared normal to model it so that I capture the skew.
+
+**d**
+```{r}
+cor(strat)
+```
+
+These strategies do appear to be correlated.
+
+**e**
+
+Null Hypothesis:
+$H_0: \mu_{1} - \mu_{2} = 0$
+
+Alternative:
+$H_1: \mu_{1} - \mu_{2} \ne 0$
+
+Two compare whether two samples have the same mean we can use the formula:
+$$T = \frac{(\mu_1 - \mu_2) - 0}{\sqrt(\frac{Var(X_1)}{N_1} + \frac{Var(X_2)}{N_2})}$$
+
+Because we have >30 observations for both selections assume that the normal distribution
+will give sufficiently accurate p-values. ([This website](http://www.itl.nist.gov/div898/handbook/eda/section3/eda353.htm) explains what the degrees of freedom for a t distribution would be).
+
+```{r}
+x1 <- strat$Strategy1
+x2 <- strat$Strategy2
+t <- ((mean(x1) -  mean(x2)) - 0) / sqrt((var(x1)/length(x1) + var(x2)/length((x2))))
+2 * pnorm(t) 
+```
+
+Because the p-value for is less than 5%, we are 95% confident that we can reject the null and accept the alternative hypothesis that the means are not equal.
+
+**f**
+
+.0073.
+
+**g**
+
+Yes, I woudl still reject at the 1 percent level because, the p-value is less than .01.
+
+**h**
+
+The smallest value at which one could reject the null value is the value of the p-value itself.
+
+
+### Problem 2
+
+```{r}
+funs <- read.xls(xls = "mfunds (2).xls", sheet=2)
+plot(funs$drefus, main = "Drefus")
+plot(funs$fidel, main = "Fidel")
+```
+
+**a**
+
+```{r}
+runs.test(funs$drefus)
+runs.test(funs$fidel)
+```
+
+**b**
+
+```{r}
+shapiro.test(funs$drefus)
+shapiro.test(funs$fidel)
+```
+
+
+**c**
+
+Because the Shapiro-Wilk test would fail to reject the hypothesis that either of the funds are non-normal while the at a 90% confidence level we would reject that both of the funds are iid, I would conlude it is unlikely that an iid model would be good for modeling the returns of the two funds.
+
+### Problem 3
+
+**a**
+
+$$E[Y|X=0] = 2$$
+
+**b**
+
+$$E[Y|X=1] = 6$$
+
+**c**
+$$Var[Y|X] = 4$$
+
+
+### Problem 4
+
+```{r}
+cen <- read.xls(xls = "censuswage.xls")
+lm.out <- lm(Wage ~ School, cen)
+par(cex=.8)
+plot(cen, xlab("School"), ylab("Wage"))
+abline(lm.out, col="red")
+```
+
+**a**
+```{r}
+summary(lm.out)
+```
+
+Based on the summary of the linear model, with 0 years of education you will lose 15 cents an hour and for each additional year of education you will earn an additional ~$1.35.
+
+**b**
+
+```{r}
+as.numeric(lm.out[[1]][1] + lm.out[[1]][2] *10)
+```
+
+**c**
+
+$$R^2 = \frac{SSR}{SST} = 1 - \frac{SSE}{SST}$$
+
+$$\frac{SSR}{n-1} = Var(\hat{y})$$
+$$\frac{SST}{n-1} = Var(y)$$
+
+```{r}
+yhat <- function(x){
+  as.numeric(lm.out[[1]][1] + lm.out[[1]][2] * x)
+}
+
+SST <- var(cen$Wage) * (length(cen$Wage) - 1)
+SSR <- var(sapply(cen$School, yhat)) * (length(cen$Wage) - 1)
+SSE <- SST - SSR
+Rsquared = SSR / SST
+cat("SST: ", SST, "\nSSR: ", SSR, "\nSSE: ", SSE, "\nR^2:", Rsquared)
+```
+
+**d**
+
+$$sd(\epsilon) = \sqrt(\frac{SSE}{n-1})$$
+
+
+```{r}
+sqrt(SSE/(length(cen$School)-1))
+```
+
+
+### Problem 5
+
+**a**
+
+```{r}
+stocks <- read.xls(xls = "capm.xls")
+stocks <- rename(x = stocks, c("Risk.Free.Proxy..30.day.T.Bills"="tbills", "Market.Return.Proxy..Value.Weig"="mrkt"))
+
+stocks$rfGE <- stocks$GE - stocks$tbills
+stocks$rfMrkt <- stocks$mrkt - stocks$tbills
+
+lm.out <- lm(rfGE ~ rfMrkt, stocks)
+
+summary(lm.out)
+```
+
+$\beta_1 =$ 1.088815
+
+**b**
+
+For each dollar of market excess returns, GE has ~$1.09 of excess returns.
+
+**c**
+```{r}
+yhat(1)
+```
+
+**d**
+
+```{r}
+covXY <- cov(stocks$rfGE, stocks$rfMrkt)
+varX <- var(stocks$rfMrkt)
+covXY / varX
+```
+
+**e**
+
+```{r}
+mean(stocks$rfGE) - (covXY / varX) * mean(stocks$rfMrkt)
+```
+
+
+### Problem 6
+
+**a**
+
+```{r}
+z <- qnorm(.025, 0 , 4)
+ypred <- 2 + 4
+cat("Lower: ", ypred + z, "Upper: ", ypred - z)
+```
+
+**b**
+
+To find the 95% confidence interval, we need the mean and standard deviation of the sum of two $\hat{Y}s$:
+
+Mean:
+
+Recall that we can substitute $\beta_0 + \beta_1 + \epsilon$ for a given y hat if X = 1.
+
+$$E[\frac{\beta_0 + \beta_1 + \epsilon_1 + \beta_0 + \beta_1 + \epsilon_2}{2}]$$
+$$E[\frac{2(\beta_0 + \beta_1)}{2} + \frac{\epsilon_1 + \epsilon_2}{2}]$$
+$$E[\beta_0 + \beta_1] + 1/2 * (E[\epsilon_1] + E[\epsilon_2])]$$
+$$6 + 1/2(0 + 0) = 6$$
+
+Variance:
+$$Var[\frac{\beta_0 + \beta_1 + \epsilon_1 + \beta_0 + \beta_1 + \epsilon_2}{2}]$$
+$$Var[\frac{2(\beta_0 + \beta_1)}{2} + \frac{\epsilon_1 + \epsilon_2}{2}]$$
+
+We know from class that the standard errors have no covariance.
+$$Var[\beta_0 + \beta_1] + (1/2)^2 * (Var[\epsilon_1] + Var[\epsilon_2])$$
+$$0 + 0 + 1/4 * 2 * 4 = 2$$
+
+```{r}
+z <- qnorm(.025, 6, 2)
+ypred <- 2 + 4
+cat("Lower: ", ypred + z, "Upper: ", ypred - z)
+```
+
+**c**
+
+```{r}
+ypred <- 2 + 4*2
+cat("Mean: ", ypred, "Var: ", 4)
+```
+
+
+**d**
+
+Assuming that we have a large number of observations where X = 2:
+
+```{r}
+pnorm(8, mean = 10, sd = sqrt(4))
+```
+
+**e**
+
+The distrobution is $N(12, 4)$
+
+**f**
+
+$$Pr(Y_2 > Y_1)  = Pr(\epsilon_2 - \epsilon_1 > 10 - 12)$$
+
+$$Pr(\epsilon_2 - \epsilon_1 > -2)$$
+
+$$E[\epsilon_2 - \epsilon_1] = 0$$
+
+$$Var[\epsilon_2 - \epsilon_1] = 2Var[\epsilon] = 8$$
+
+```{r}
+1 - pnorm(-2, 0, sqrt(8))
+```
+
+
+### Problem 7
+
+```{r}
+cen <- read.xls(xls = "censuswage.xls")
+lm.out <- lm(Wage ~ School, cen)
+```
+
+**a**
+
+$$cov(\beta_0, \beta_1) = \frac{\sigma^2 \bar{x}}{(n-1)s_x^2}$$
+
+```{r}
+  sigmasquared = sum((lm.out$residuals^2))/length(lm.out$residuals)
+sigmasquared * mean(cen$School) / ((length(cen$School)-1)*var(cen$School))
+```
+
+**b**
+
+Null Hypothesis:
+$H_0: \beta_{1} = 0$
+
+Alternative:
+$H_1: \beta_{1} \ne 0$
+
+$$\frac{b_j - B_j}{s_{b_j}}$$
+
+```{r}
+sBj <- sqrt(1/(length(cen$School)-2) * sigmasquared)
+print(sBj)
+t <- (as.numeric(lm.out$coefficients["School"]) - 0) / sBj
+print(t)
+2*(1 - pt(t, length(cen$School)-2))
+```
+
+We are 95% confident we can reject the null hypothesis. This tells us we are confident in the fact that there is a relationship between number of years in school and your wage.
+
+
+**c**
+
+Null Hypothesis:
+$H_0: \beta_{1} = 0$
+
+Alternative:
+$H_1: \beta_{1} \ne 0$
+
+
+

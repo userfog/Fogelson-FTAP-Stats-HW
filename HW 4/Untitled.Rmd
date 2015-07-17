@@ -1,0 +1,15 @@
+---
+title: "FTAP Homework 4"
+author: "Zachary Fogelson"
+date: "July 16, 2015"
+output: html_document
+---
+```{r, include = F}
+library(gdata)
+library(plyr)
+library(knitr)
+```
+
+
+### Problem 1
+
