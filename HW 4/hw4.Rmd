@@ -214,7 +214,7 @@ For each dollar of market excess returns, GE has ~$1.09 of excess returns.
 
 **c**
 ```{r}
-yhat(1)
+yhat(.01)
 ```
 
 **d**
@@ -239,7 +239,7 @@ mean(stocks$rfGE) - (covXY / varX) * mean(stocks$rfMrkt)
 ```{r}
 z <- qnorm(.025, 0 , sd = 2)
 ypred <- 2 + 4
-cat("Lower: ", ypred + z, "Upper: ", ypred - z)
+cat("Lower: ", (ypred + z), "Upper: ", (ypred - z))
 ```
 
 **b**
@@ -264,9 +264,8 @@ $$Var[\beta_0 + \beta_1] + (1/2)^2 * (Var[\epsilon_1] + Var[\epsilon_2])$$
 $$0 + 0 + 1/4 * 2 * 4 = 2$$
 
 ```{r}
-z <- qnorm(.025, 6, sqrt(2))
 ypred <- 2 + 4
-cat("Lower: ", ypred - z, "Upper: ", ypred + z)
+cat("Lower: ", ypred - 1.96*sqrt(2), "Upper: ", ypred + 1.96*sqrt(2))
 ```
 
 **c**
