@@ -2,7 +2,7 @@
 title: "FTAP Homework 5"
 author: "Zachary Fogelson"
 date: "July 16, 2015"
-output: html_document
+output: pdf_document
 ---
 
 ```{r, include = F}
@@ -142,3 +142,26 @@ Therefore, due to removing the observations for DC which have extremely large re
 
 ### Problem 4
 
+```{r}
+rank <- read.xls(xls = "rank.xls")
+plot(rank)
+```
+
+**a**
+
+```{r}
+lm.out <- lm(salary ~ cost, rank)
+plot(salary ~ cost, rank)
+abline(lm.out, col = "red")
+summary(lm.out) 
+```
+
+The correlation between cost and entry salary is $\approx$ 10%.
+
+**b**
+
+Based on the scatter plot of salary versus cost shown above, business school costs are clearly left skewed. There are a large number of schools whose tuition are between 35 and 40 thousand dollars a semester but there individual schools which charge as little as 15 thousand a semester.
+
+**c**
+
+According to reg
