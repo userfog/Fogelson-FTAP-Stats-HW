@@ -2,7 +2,7 @@
 title: "FTAP Homework 5"
 author: "Zachary Fogelson"
 date: "July 16, 2015"
-output: pdf_document
+output: html_document
 ---
 
 ```{r, include = F}
@@ -96,7 +96,7 @@ Controlling for the effects of unemployment, the presence of capital punishment 
 predict(lm.out, newdata = data.frame(unemp=c(6,6), CapPun=c(1,0)), interval = "predict")
 ```
 
-These intervals are very large! Both intervals include 0 also both intervals include values with are both >2x and <x/2 the fit (spot estimate) value.
+These intervals are very large! Both intervals include 0 also both intervals include values with are both \>2x and \<x\/2 the fit (spot estimate) value.
 
 **e**
 
@@ -106,3 +106,39 @@ dcUnemp <- redrum[redrum$state == 9,]$unemp
 dcMrdrate <- redrum[redrum$state == 9,]$mrdrate
 text(x = dcUnemp, y = dcMrdrate, labels = c("DC87 (6.3, 36.2)", "DC90 (6.6, 77.8)", "DC93 (8.5, 78.5)"), cex = .7, pos = 1)
 ```
+
+```{r}
+redrumNoDC <- redrum[redrum$state != 9,]
+lm.out <- lm(mrdrate ~ unemp + CapPun, redrumNoDC)
+lm.out
+```
+
+Based on the new regression which excludes Washington D.C. for an given level of unemployment, whether or not a state has capital punishment is associated with a 3.6% higher murder rate.
+
+```{r}
+summary(lm.out)
+```
+
+Null Hypothesis:
+$H_0: \beta_{2} = 0$
+
+Alternative:
+$H_1: \beta_{2} \ne 0$
+
+Because the p-value for the $\beta_2$ coefficient is less than .001% we are able to be more than 99% confident in rejecting the null hypothesis.
+
+***Discussion:***
+
+We know that the t-statistic for multiple varaiable regressions depend the standard error of the coefficient we are examining.
+
+$$t = \frac{b_j - \beta_j}{s_{b_j}}$$
+
+Furthermore, we know that the standard error for the coefficeint depends on $\sigma^2$:
+
+$$\sqrt(\sigma^2*[1 + \frac{1}{n} + \frac{(X_f - \bar{X})}{(n-1)*s_x^2}])$$
+
+Therefore, due to removing the observations for DC which have extremely large residuals we have dramatically reduced the observed variance in $\sigma^2$ and, therefore we will expect much smaller t-values.
+
+
+### Problem 4
+
