@@ -35,5 +35,28 @@ lines(c(10:17), conf.int[,2], col="green",  type="l", lty=2, lwd = 2)
 lines(c(10:17), conf.int[,3], col="green",  type="l", lty=2, lwd = 2)
 ```
 
+### Problem 2
+
+```{r}
+ceo <- read.xls(xls = "ceosalary.xls")
+lm.out <- lm(salary ~ comten + ceoten + sales, ceo)
+print(lm.out)  # Point Estimates
+summary(lm.out)$coefficients[,"Std. Error"] # Std Errors (You can also see this from sqrt(diag(vcov(lm.out))))
+confint(lm.out)  # Confidence intervals
+summary(lm.out)$coefficients[,"Pr(>|t|)"]
+```
+
+**a**
+
+Because the confidence interval for the slope coefficient of company tenure on ceo salary includes 0. We could hypothesise that company tenure is unrelated to ceo salary. However, company tenure is probably highly correlated with ceo tenure. Therefore, the large covariance between the two variables may be causing the counter intuative relationship between company tenure and salary.
+
+**b**
+
+Because the confidence interval for sales does not include 0 and because the p-value for the statistical significance for sales as a determininent of sales is far below the 99% confidence level we can be confident that theory two is incorrect.
+
+
+
+
+
 
 
