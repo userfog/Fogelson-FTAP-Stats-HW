@@ -2,7 +2,7 @@
 title: "FTAP Homework 5"
 author: "Zachary Fogelson"
 date: "July 16, 2015"
-output: html_document
+output: pdf_document
 ---
 
 ```{r, include = F}
@@ -55,7 +55,9 @@ Because the confidence interval for the slope coefficient of company tenure on c
 Because the confidence interval for sales does not include 0 and because the p-value for the statistical significance for sales as a determininent of sales is far below the 99% confidence level we can be confident that theory two is incorrect.
 
 
+### Probelm 3
 
+**a** 
 
 
 
