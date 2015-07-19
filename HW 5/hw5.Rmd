@@ -26,7 +26,7 @@ confint(lm.out)
 
 ```{r}
 plot(Wage ~ School, wgs[wgs$School > 10, ], ylim=c(-100, 700))
-pred.int <- predict(lm.out, newdata = data.frame(School=seq(10:17)), interval = "predict")
+pred.int <- predict(lm.out, newdata = data.frame(School=c(10:17)), interval = "predict")
 conf.int <- predict(lm.out, newdata = data.frame(School=c(10:17)), interval = "confidence")
 lines(c(10:17), pred.int[,1], col="red", lwd = 2)
 lines(c(10:17), pred.int[,2], col="blue",  type="l", lty=2, lwd = 2)
@@ -57,8 +57,52 @@ Because the confidence interval for sales does not include 0 and because the p-v
 
 ### Probelm 3
 
+```{r}
+redrum <- read.xls(xls = "murder.xls")
+plot(redrum)
+```
+
 **a** 
+```{r}
+redrum$CapPun <- as.numeric(redrum$exec > 0)
+lm.out <- lm(mrdrate ~ unemp + CapPun, redrum)
+lm.out
+```
+
+**b**
+
+The coefficient on the capital punishment variable means that for a given level of unemployment, whether a community has capital punishment or not is associated with 1.753% higher murder rate.
+
+**c**
+
+```{r}
+summary(lm.out)
+```
+
+Null Hypothesis:
+$H_0: \beta_{2} = 0$
+
+Alternative:
+$H_1: \beta_{2} \ne 0$
 
 
+Because the p-value for $\beta_2$ is >5% we fail to reject the null hypothesis that whether or not a community has capital punishment influences the murder rate.
 
+Controlling for the effects of unemployment, the presence of capital punishment we cannot say that capital punishment is correlated to the murder rate.
 
+**d**
+
+```{r}
+predict(lm.out, newdata = data.frame(unemp=c(6,6), CapPun=c(1,0)), interval = "predict")
+```
+
+These intervals are very large! Both intervals include 0 also both intervals include values with are both >2x and <x/2 the fit (spot estimate) value.
+
+**e**
+
+```{r}
+plot(mrdrate ~ unemp, redrum)
+dcUnemp <- redrum[redrum$state == 9,]$unemp
+dcMrdrate <- redrum[redrum$state == 9,]$mrdrate
+text(x = dcUnemp, y = dcMrdrate, labels = c("DC87 (6.3, 36.2)", "DC90 (6.6, 77.8)", "DC93 (8.5, 78.5)"), cex = .7, pos = 1)
+```
