@@ -2,7 +2,7 @@
 title: "FTAP Homework 5"
 author: "Zachary Fogelson"
 date: "July 16, 2015"
-output: pdf_document
+output: html_document
 ---
 
 ```{r, include = F}
@@ -164,4 +164,10 @@ Based on the scatter plot of salary versus cost shown above, business school cos
 
 **c**
 
-According to reg
+According to the regression, for each additional dollar we spend to go to business school we will make an addition $.32 for our future entry salary. Based on the slope estimate alone I don't believe that anything can be concluded, we do not know whether the slope is significant. It is possible that we would get this slope even through there is not a linear relationship between cost and entry salary.
+
+**d**
+
+Yes, I believe we need to be very careful in interpretting these results because the scatter plot looks highly non-linear.
+
+
