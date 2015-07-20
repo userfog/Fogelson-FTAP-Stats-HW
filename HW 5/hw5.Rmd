@@ -15,17 +15,32 @@ library(knitr)
 
 **a** 
 
+
+$$s_{fit} = s\sqrt(\frac{1}{n}+\frac{(X_f - \bar{X})}{(n-1)s_X^2})$$
+
+$$Sd = 20.76$$
+$$\bar{X} = 11.04966$$
+$$n = 5336$$
+$$S_x^2 = 7.817402$$
+
+$$s_{fit} = 20.76 * \sqrt(\frac{1}{5336} + \frac{(10 - 11.0496)^2}{5335 * 7.817402})$$
+
+$$s_{fit} = 0.303531$$
+
+$$CI = (11.65672, 12.74613)$$
+
+
 ```{r}
 wgs <- read.xls(xls = "censuswage.xls")
-lm.out <- lm(Wage ~ School, wgs[wgs$School >= 10,])
-confint(lm.out)
+lm.out <- lm(Wage ~ School, wgs)
+predict(lm.out,data.frame(School=c(10)), interval = "confidence")
 ```
 
 
 **b**
 
 ```{r}
-plot(Wage ~ School, wgs[wgs$School > 10, ], ylim=c(-100, 700))
+plot(Wage ~ School, wgs[wgs$School >= 10, ], ylim=c(-100, 700))
 pred.int <- predict(lm.out, newdata = data.frame(School=c(10:17)), interval = "predict")
 conf.int <- predict(lm.out, newdata = data.frame(School=c(10:17)), interval = "confidence")
 lines(c(10:17), pred.int[,1], col="red", lwd = 2)
@@ -133,11 +148,11 @@ We know that the t-statistic for multiple varaiable regressions depend the stand
 
 $$t = \frac{b_j - \beta_j}{s_{b_j}}$$
 
-Furthermore, we know that the standard error for the coefficeint depends on $\sigma^2$:
+Furthermore, we know that the standard error for a given $\beta$ depends on $\sigma^2$.
 
-$$\sqrt(\sigma^2*[1 + \frac{1}{n} + \frac{(X_f - \bar{X})}{(n-1)*s_x^2}])$$
+(https://stats.stackexchange.com/questions/44838/how-are-the-standard-errors-of-coefficients-calculated-in-a-regression)
 
-Therefore, due to removing the observations for DC which have extremely large residuals we have dramatically reduced the observed variance in $\sigma^2$ and, therefore we will expect much smaller t-values.
+Therefore, by removing the observations for DC which have extremely large residuals we have dramatically reduced the observed variance in $\sigma^2$ and, we manufacture much smaller t-values.
 
 
 ### Problem 4
@@ -154,16 +169,18 @@ lm.out <- lm(salary ~ cost, rank)
 plot(salary ~ cost, rank)
 abline(lm.out, col = "red")
 summary(lm.out) 
+
+cor(rank$salary, rank$cost)
 ```
 
-The correlation between cost and entry salary is $\approx$ 10%.
+The correlation between cost and entry salary is $\approx$ .314.
 
 **b**
 
 Based on the scatter plot of salary versus cost shown above, business school costs are clearly left skewed. There are a large number of schools whose tuition are between 35 and 40 thousand dollars a semester but there individual schools which charge as little as 15 thousand a semester.
 
 **c**
-
+rent
 According to the regression, for each additional dollar we spend to go to business school we will make an addition $.32 for our future entry salary. Based on the slope estimate alone I don't believe that anything can be concluded, we do not know whether the slope is significant. It is possible that we would get this slope even through there is not a linear relationship between cost and entry salary.
 
 **d**
