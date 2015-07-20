@@ -2,7 +2,7 @@
 title: "FTAP Homework 5"
 author: "Zachary Fogelson"
 date: "July 16, 2015"
-output: html_document
+output: pdf_document
 ---
 
 ```{r, include = F}
