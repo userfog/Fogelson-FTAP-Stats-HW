@@ -74,8 +74,7 @@ img {
 <p><span class="math">\[s_{fit} = s\sqrt(\frac{1}{n}+\frac{(X_f - \bar{X})}{(n-1)s_X^2})\]</span></p>
 <p><span class="math">\[Sd = 20.76\]</span> <span class="math">\[\bar{X} = 11.04966\]</span> <span class="math">\[n = 5336\]</span> <span class="math">\[S_x^2 = 7.817402\]</span></p>
 <p><span class="math">\[s_{fit} = 20.76 * \sqrt(\frac{1}{5336} + \frac{(10 - 11.0496)^2}{5335 * 7.817402})\]</span></p>
-<p><span class="math">\[s_{fit} = 0.303531\]</span></p>
-<p><span class="math">\[CI = (11.65672, 12.74613)\]</span></p>
+<p><span class="math">\[s_{fit} = 0.303531\]</span> <span class="math">\[P(Y|X=10) = 13.295\]</span> <span class="math">\[CI = 13.295 +/- 2*0.303531  = (12.7, 13.9)\]</span></p>
 <pre class="r"><code>wgs &lt;- read.xls(xls = &quot;censuswage.xls&quot;)
 lm.out &lt;- lm(Wage ~ School, wgs)
 predict(lm.out,data.frame(School=c(10)), interval = &quot;confidence&quot;)</code></pre>
@@ -247,7 +246,7 @@ abline(lm.out, col = &quot;red&quot;)</code></pre>
 ## F-statistic: 1.963 on 1 and 18 DF,  p-value: 0.1782</code></pre>
 <pre class="r"><code>cor(rank$salary, rank$cost)</code></pre>
 <pre><code>## [1] 0.3135941</code></pre>
-<p>The correlation between cost and entry salary is <span class="math">\(\approx\)</span> 10%.</p>
+<p>The correlation between cost and entry salary is <span class="math">\(\approx\)</span> .314.</p>
 <p><strong>b</strong></p>
 <p>Based on the scatter plot of salary versus cost shown above, business school costs are clearly left skewed. There are a large number of schools whose tuition are between 35 and 40 thousand dollars a semester but there individual schools which charge as little as 15 thousand a semester.</p>
 <p><strong>c</strong> rent According to the regression, for each additional dollar we spend to go to business school we will make an addition $.32 for our future entry salary. Based on the slope estimate alone I don’t believe that anything can be concluded, we do not know whether the slope is significant. It is possible that we would get this slope even through there is not a linear relationship between cost and entry salary.</p>
