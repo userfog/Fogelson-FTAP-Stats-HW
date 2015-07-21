@@ -2,7 +2,7 @@
 title: "FTAP Stats HW 6"
 author: "Zachary Fogelson"
 date: "July 20, 2015"
-output: html_document
+output: pdf_document
 ---
 
 ```{r, include=FALSE}
