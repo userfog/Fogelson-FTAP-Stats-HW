@@ -63,6 +63,26 @@ modelDf <- as.data.frame(model.matrix(~(Bathrooms + Yr+Ac+Parking+Rooms+logSqFt1
 modelDf$Rent <- rent596$Rent
 interactModel <- lm(Rent ~ Bathrooms + Yr + logSqFt100 + Ac + Parking + Rooms + Sixties + Seventies + Eighties + Ninties + Ac:Sixties + Ac:Seventies + Ac:Eighties + Ac:Ninties + Parking:Sixties + Parking:Seventies + Parking:Eighties + Parking:Ninties + Rooms:Sixties + Rooms:Seventies  +Rooms:Eighties + Rooms:Ninties + logSqFt100:Sixties + logSqFt100:Seventies + logSqFt100:Eighties + logSqFt100:Ninties, modelDf)
 summary(interactModel)
+
+ultraSink <- lm(Rent ~ Bathrooms      +      Yr +                
+       Ac  +                 Parking  +            Rooms       +       
+       logSqFt100   +        Sixties   +           Seventies    +       
+       Eighties     +        Ninties   +           Bathrooms:Yr +       
+       Bathrooms:Ac   +      Bathrooms:Parking +   Bathrooms:Rooms    + 
+       Bathrooms:logSqFt100 +Bathrooms:Sixties +   Bathrooms:Seventies +
+       Bathrooms:Eighties +  Bathrooms:Ninties +   Yr:Ac              + 
+       Yr:Parking     +      Yr:Rooms          +   Yr:logSqFt100      + 
+       Yr:Sixties     +      Yr:Seventies      +   Yr:Eighties        + 
+       Yr:Ninties     +      Ac:Parking        +   Ac:Rooms           + 
+       Ac:logSqFt100   +     Ac:Sixties        +   Ac:Seventies        +
+       Ac:Eighties    +      Ac:Ninties        +   Parking:Rooms       +
+       Parking:logSqFt100 +  Parking:Sixties   +   Parking:Seventies   +
+       Parking:Eighties  +   Parking:Ninties   +   Rooms:logSqFt100   + 
+       Rooms:Sixties   +     Rooms:Seventies   +   Rooms:Eighties   +   
+       Rooms:Ninties   +     logSqFt100:Sixties+   logSqFt100:Seventies+
+       logSqFt100:Eighties+  logSqFt100:Ninties , modelDf)
+
+summary(ultraSink)
 ```
 
 #### Kitchen Sink log(sqft) Messin Around
@@ -71,6 +91,14 @@ rent596$logSqFt100 <- log(rent596$sqft100)
 messin <- lm(Rent ~ Bathrooms^2 + Yr + logSqFt100 + Ac + Parking + sqrt(Rooms), rent596)
 summary(messin)
 ```
+
+#### Just Rooms
+```{r}
+roomMod <- lm(Rent ~ Rooms, rent596)
+summary(roomMod)
+```
+
+
 
 # Part C
 
@@ -84,15 +112,19 @@ rent596$Eighties <- as.numeric(1980 <= rent596$Yr & 1990 > rent596$Yr)
 rent596$Ninties <- as.numeric(1990 <= rent596$Yr)
 modelDf <- as.data.frame(model.matrix(~(Bathrooms + Yr+Ac+Parking+Rooms+logSqFt100 + Sixties + Seventies + Eighties + Ninties)^2,rent596))
 modelDf$Rent <- rent596$Rent
+rent596$UltraPred <- predict(ultraSink, rent596, interval = "none")
 rent596$InteractPred <- predict(interactModel, rent596, interval = "none")
 rent596$KitchLogPred <- predict(logSqFt,rent596,intreval = "none")
 rent596$JeffPred <- predict(lm.out,rent596,intreval = "none")
+rent596$RoomsPred <- predict(roomMod,rent596,intreval = "none")
 
 interErrors <- sum((rent596$Rent-rent596$InteractPred)^2)
 kitchErrors <- sum((rent596$Rent-rent596$KitchLogPred)^2)
 jeffErrors <- sum((rent596$Rent-rent596$JeffPred)^2)
+ultraErrors <- sum((rent596$Rent-rent596$UltraPred)^2)
+roomsErrors <- sum((rent596$Rent-rent596$RoomsPred)^2)
 
-cat("Moment of Truth: Jeff: ", jeffErrors / jeffErrors, "Kitchen: ", kitchErrors / jeffErrors, "Inter: ", interErrors / jeffErrors)
+cat("Moment of Truth: Jeff: ", jeffErrors / jeffErrors, "Kitchen: ", kitchErrors / jeffErrors, "Inter: ", interErrors / jeffErrors, "Ultra: ", ultraErrors/jeffErrors, "Rooms: ", roomsErrors/jeffErrors)
 ```
 
 # Part D

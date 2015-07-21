@@ -340,6 +340,102 @@ summary(interactModel)</code></pre>
 ## Residual standard error: 194.1 on 569 degrees of freedom
 ## Multiple R-squared:  0.3544, Adjusted R-squared:  0.3249 
 ## F-statistic: 12.01 on 26 and 569 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>ultraSink &lt;- lm(Rent ~ Bathrooms      +      Yr +                
+       Ac  +                 Parking  +            Rooms       +       
+       logSqFt100   +        Sixties   +           Seventies    +       
+       Eighties     +        Ninties   +           Bathrooms:Yr +       
+       Bathrooms:Ac   +      Bathrooms:Parking +   Bathrooms:Rooms    + 
+       Bathrooms:logSqFt100 +Bathrooms:Sixties +   Bathrooms:Seventies +
+       Bathrooms:Eighties +  Bathrooms:Ninties +   Yr:Ac              + 
+       Yr:Parking     +      Yr:Rooms          +   Yr:logSqFt100      + 
+       Yr:Sixties     +      Yr:Seventies      +   Yr:Eighties        + 
+       Yr:Ninties     +      Ac:Parking        +   Ac:Rooms           + 
+       Ac:logSqFt100   +     Ac:Sixties        +   Ac:Seventies        +
+       Ac:Eighties    +      Ac:Ninties        +   Parking:Rooms       +
+       Parking:logSqFt100 +  Parking:Sixties   +   Parking:Seventies   +
+       Parking:Eighties  +   Parking:Ninties   +   Rooms:logSqFt100   + 
+       Rooms:Sixties   +     Rooms:Seventies   +   Rooms:Eighties   +   
+       Rooms:Ninties   +     logSqFt100:Sixties+   logSqFt100:Seventies+
+       logSqFt100:Eighties+  logSqFt100:Ninties , modelDf)
+
+summary(ultraSink)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Rent ~ Bathrooms + Yr + Ac + Parking + Rooms + logSqFt100 + 
+##     Sixties + Seventies + Eighties + Ninties + Bathrooms:Yr + 
+##     Bathrooms:Ac + Bathrooms:Parking + Bathrooms:Rooms + Bathrooms:logSqFt100 + 
+##     Bathrooms:Sixties + Bathrooms:Seventies + Bathrooms:Eighties + 
+##     Bathrooms:Ninties + Yr:Ac + Yr:Parking + Yr:Rooms + Yr:logSqFt100 + 
+##     Yr:Sixties + Yr:Seventies + Yr:Eighties + Yr:Ninties + Ac:Parking + 
+##     Ac:Rooms + Ac:logSqFt100 + Ac:Sixties + Ac:Seventies + Ac:Eighties + 
+##     Ac:Ninties + Parking:Rooms + Parking:logSqFt100 + Parking:Sixties + 
+##     Parking:Seventies + Parking:Eighties + Parking:Ninties + 
+##     Rooms:logSqFt100 + Rooms:Sixties + Rooms:Seventies + Rooms:Eighties + 
+##     Rooms:Ninties + logSqFt100:Sixties + logSqFt100:Seventies + 
+##     logSqFt100:Eighties + logSqFt100:Ninties, data = modelDf)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -629.99 -104.88  -11.75   94.19  677.41 
+## 
+## Coefficients: (1 not defined because of singularities)
+##                        Estimate Std. Error t value Pr(&gt;|t|)   
+## (Intercept)          -6.436e+03  9.335e+03  -0.689  0.49084   
+## Bathrooms             1.809e+03  6.870e+03   0.263  0.79238   
+## Yr                    3.466e+00  4.820e+00   0.719  0.47229   
+## Ac                    8.171e+02  3.955e+03   0.207  0.83641   
+## Parking              -2.037e+03  4.150e+03  -0.491  0.62379   
+## Rooms                 5.966e+02  2.036e+03   0.293  0.76961   
+## logSqFt100            4.643e+02  3.629e+03   0.128  0.89825   
+## Sixties              -1.008e+02  1.679e+02  -0.601  0.54841   
+## Seventies             5.010e+03  1.569e+04   0.319  0.74955   
+## Eighties              3.272e+04  1.775e+04   1.843  0.06586 . 
+## Ninties              -2.671e+04  2.885e+04  -0.926  0.35494   
+## Bathrooms:Yr         -1.017e+00  3.551e+00  -0.286  0.77477   
+## Bathrooms:Ac          5.875e+01  5.903e+01   0.995  0.32002   
+## Bathrooms:Parking    -1.230e+02  6.333e+01  -1.942  0.05263 . 
+## Bathrooms:Rooms       3.190e+01  3.121e+01   1.022  0.30712   
+## Bathrooms:logSqFt100  8.428e+01  6.239e+01   1.351  0.17731   
+## Bathrooms:Sixties    -5.760e+00  1.163e+02  -0.050  0.96053   
+## Bathrooms:Seventies  -3.835e+01  1.460e+02  -0.263  0.79295   
+## Bathrooms:Eighties    8.549e+01  1.784e+02   0.479  0.63196   
+## Bathrooms:Ninties     1.069e+01  2.170e+02   0.049  0.96073   
+## Yr:Ac                -4.527e-01  2.045e+00  -0.221  0.82488   
+## Yr:Parking            1.102e+00  2.138e+00   0.515  0.60649   
+## Yr:Rooms             -2.794e-01  1.055e+00  -0.265  0.79118   
+## Yr:logSqFt100        -1.931e-01  1.875e+00  -0.103  0.91803   
+## Yr:Sixties                   NA         NA      NA       NA   
+## Yr:Seventies         -2.583e+00  7.943e+00  -0.325  0.74521   
+## Yr:Eighties          -1.653e+01  8.954e+00  -1.846  0.06538 . 
+## Yr:Ninties            1.320e+01  1.446e+01   0.913  0.36147   
+## Ac:Parking            8.336e+01  3.705e+01   2.250  0.02485 * 
+## Ac:Rooms             -1.240e+01  1.898e+01  -0.653  0.51404   
+## Ac:logSqFt100         2.106e+01  3.423e+01   0.615  0.53863   
+## Ac:Sixties            3.708e+01  6.711e+01   0.553  0.58080   
+## Ac:Seventies         -7.619e+00  8.879e+01  -0.086  0.93165   
+## Ac:Eighties           1.335e+02  1.138e+02   1.173  0.24139   
+## Ac:Ninties            2.233e+01  2.115e+02   0.106  0.91596   
+## Parking:Rooms         2.574e+01  2.082e+01   1.237  0.21679   
+## Parking:logSqFt100   -1.383e+01  3.411e+01  -0.405  0.68538   
+## Parking:Sixties      -1.893e+01  6.710e+01  -0.282  0.77792   
+## Parking:Seventies    -6.987e+01  9.052e+01  -0.772  0.44049   
+## Parking:Eighties     -1.978e+02  1.176e+02  -1.682  0.09320 . 
+## Parking:Ninties      -5.669e+01  1.537e+02  -0.369  0.71233   
+## Rooms:logSqFt100     -2.974e+01  1.133e+01  -2.624  0.00894 **
+## Rooms:Sixties         5.985e+01  4.063e+01   1.473  0.14138   
+## Rooms:Seventies       2.871e+00  5.104e+01   0.056  0.95515   
+## Rooms:Eighties       -3.919e+01  6.968e+01  -0.562  0.57402   
+## Rooms:Ninties         3.125e+01  7.897e+01   0.396  0.69252   
+## logSqFt100:Sixties   -5.372e+01  6.351e+01  -0.846  0.39802   
+## logSqFt100:Seventies  8.624e+01  9.337e+01   0.924  0.35612   
+## logSqFt100:Eighties   8.270e+01  1.197e+02   0.691  0.48992   
+## logSqFt100:Ninties    1.466e+02  1.584e+02   0.925  0.35529   
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 193.4 on 547 degrees of freedom
+## Multiple R-squared:  0.3839, Adjusted R-squared:  0.3298 
+## F-statistic:   7.1 on 48 and 547 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 <div id="kitchen-sink-logsqft-messin-around" class="section level4">
 <h4>Kitchen Sink log(sqft) Messin Around</h4>
@@ -371,6 +467,29 @@ summary(messin)</code></pre>
 ## Multiple R-squared:  0.3211, Adjusted R-squared:  0.3142 
 ## F-statistic: 46.43 on 6 and 589 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
+<div id="just-rooms" class="section level4">
+<h4>Just Rooms</h4>
+<pre class="r"><code>roomMod &lt;- lm(Rent ~ Rooms, rent596)
+summary(roomMod)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Rent ~ Rooms, data = rent596)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -687.96 -126.19  -26.19   99.50  766.58 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  345.115     31.632  10.910   &lt;2e-16 ***
+## Rooms         82.770      8.328   9.939   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 218.9 on 594 degrees of freedom
+## Multiple R-squared:  0.1426, Adjusted R-squared:  0.1412 
+## F-statistic: 98.79 on 1 and 594 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
 </div>
 <div id="part-c" class="section level1">
 <h1>Part C</h1>
@@ -383,16 +502,22 @@ rent596$Eighties &lt;- as.numeric(1980 &lt;= rent596$Yr &amp; 1990 &gt; rent596$
 rent596$Ninties &lt;- as.numeric(1990 &lt;= rent596$Yr)
 modelDf &lt;- as.data.frame(model.matrix(~(Bathrooms + Yr+Ac+Parking+Rooms+logSqFt100 + Sixties + Seventies + Eighties + Ninties)^2,rent596))
 modelDf$Rent &lt;- rent596$Rent
-rent596$InteractPred &lt;- predict(interactModel, rent596, interval = &quot;none&quot;)
+rent596$UltraPred &lt;- predict(ultraSink, rent596, interval = &quot;none&quot;)</code></pre>
+<pre><code>## Warning in predict.lm(ultraSink, rent596, interval = &quot;none&quot;): prediction
+## from a rank-deficient fit may be misleading</code></pre>
+<pre class="r"><code>rent596$InteractPred &lt;- predict(interactModel, rent596, interval = &quot;none&quot;)
 rent596$KitchLogPred &lt;- predict(logSqFt,rent596,intreval = &quot;none&quot;)
 rent596$JeffPred &lt;- predict(lm.out,rent596,intreval = &quot;none&quot;)
+rent596$RoomsPred &lt;- predict(roomMod,rent596,intreval = &quot;none&quot;)
 
 interErrors &lt;- sum((rent596$Rent-rent596$InteractPred)^2)
 kitchErrors &lt;- sum((rent596$Rent-rent596$KitchLogPred)^2)
 jeffErrors &lt;- sum((rent596$Rent-rent596$JeffPred)^2)
+ultraErrors &lt;- sum((rent596$Rent-rent596$UltraPred)^2)
+roomsErrors &lt;- sum((rent596$Rent-rent596$RoomsPred)^2)
 
-cat(&quot;Moment of Truth: Jeff: &quot;, jeffErrors / jeffErrors, &quot;Kitchen: &quot;, kitchErrors / jeffErrors, &quot;Inter: &quot;, interErrors / jeffErrors)</code></pre>
-<pre><code>## Moment of Truth: Jeff:  1 Kitchen:  0.9064207 Inter:  0.9581592</code></pre>
+cat(&quot;Moment of Truth: Jeff: &quot;, jeffErrors / jeffErrors, &quot;Kitchen: &quot;, kitchErrors / jeffErrors, &quot;Inter: &quot;, interErrors / jeffErrors, &quot;Ultra: &quot;, ultraErrors/jeffErrors, &quot;Rooms: &quot;, roomsErrors/jeffErrors)</code></pre>
+<pre><code>## Moment of Truth: Jeff:  1 Kitchen:  0.9064207 Inter:  0.9581592 Ultra:  0.9994721 Rooms:  1.220395</code></pre>
 </div>
 <div id="part-d" class="section level1">
 <h1>Part D</h1>
