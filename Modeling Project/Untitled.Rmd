@@ -11,16 +11,17 @@ library(plyr)
 library(knitr)
 ```
 
+# Part A
 #### Standard
 
 ```{r}
 rent596 <- read.xls(xls = "rent596.xls")
 rent596 <- rename(rent596, c("Year.Built"="Yr", "Sq.Feet..in.100s."="sqft100", "Air.Conditioning"="Ac"))
-
-
 lm.out <- lm(Rent ~ Bathrooms + sqft100 + Ac + Rooms^2, rent596)
 summary(lm.out)
 ```
+
+# Part B
 
 #### Descriptive
 ```{r}
@@ -58,11 +59,10 @@ rent596$Sixties <- as.numeric(1960 <= rent596$Yr & 1970 > rent596$Yr)
 rent596$Seventies <- as.numeric(1970 <= rent596$Yr & 1980 > rent596$Yr)
 rent596$Eighties <- as.numeric(1980 <= rent596$Yr & 1990 > rent596$Yr)
 rent596$Ninties <- as.numeric(1990 <= rent596$Yr)
-rent596$NewConstruction <- as.numeric(1999 <= rent596$Yr)
 modelDf <- as.data.frame(model.matrix(~(Bathrooms + Yr+Ac+Parking+Rooms+logSqFt100 + Sixties + Seventies + Eighties + Ninties)^2,rent596))
 modelDf$Rent <- rent596$Rent
-logSqFt <- lm(Rent ~ Bathrooms + Yr + logSqFt100 + Ac + Parking + Rooms + Sixties + Seventies + Eighties + Ninties + Ac:Sixties + Ac:Seventies + Ac:Eighties + Ac:Ninties + Parking:Sixties + Parking:Seventies + Parking:Eighties + Parking:Ninties + Rooms:Sixties + Rooms:Seventies  +Rooms:Eighties + Rooms:Ninties + logSqFt100:Sixties + logSqFt100:Seventies + logSqFt100:Eighties + logSqFt100:Ninties, modelDf)
-summary(logSqFt)
+interactModel <- lm(Rent ~ Bathrooms + Yr + logSqFt100 + Ac + Parking + Rooms + Sixties + Seventies + Eighties + Ninties + Ac:Sixties + Ac:Seventies + Ac:Eighties + Ac:Ninties + Parking:Sixties + Parking:Seventies + Parking:Eighties + Parking:Ninties + Rooms:Sixties + Rooms:Seventies  +Rooms:Eighties + Rooms:Ninties + logSqFt100:Sixties + logSqFt100:Seventies + logSqFt100:Eighties + logSqFt100:Ninties, modelDf)
+summary(interactModel)
 ```
 
 #### Kitchen Sink log(sqft) Messin Around
@@ -72,60 +72,39 @@ messin <- lm(Rent ~ Bathrooms^2 + Yr + logSqFt100 + Ac + Parking + sqrt(Rooms), 
 summary(messin)
 ```
 
+# Part C
 
-#### Rooms
 ```{r}
-lm.rooms <- lm(Rent ~ Rooms, rent596)
-lm.roomsRoot <- lm(Rent ~ log(Rooms), rent596)
-summary(lm.rooms)
-summary(lm.roomsRoot)
+rent596 <- read.xls(xls = "rent100a.xls")
+rent596 <- rename(rent596, c("Year.Built"="Yr", "Sq.Feet..in.100s."="sqft100", "Air.Conditioning"="Ac"))
+rent596$logSqFt100 <- log(rent596$sqft100)
+rent596$Sixties <- as.numeric(1960 <= rent596$Yr & 1970 > rent596$Yr)
+rent596$Seventies <- as.numeric(1970 <= rent596$Yr & 1980 > rent596$Yr)
+rent596$Eighties <- as.numeric(1980 <= rent596$Yr & 1990 > rent596$Yr)
+rent596$Ninties <- as.numeric(1990 <= rent596$Yr)
+modelDf <- as.data.frame(model.matrix(~(Bathrooms + Yr+Ac+Parking+Rooms+logSqFt100 + Sixties + Seventies + Eighties + Ninties)^2,rent596))
+modelDf$Rent <- rent596$Rent
+rent596$InteractPred <- predict(interactModel, rent596, interval = "none")
+rent596$KitchLogPred <- predict(logSqFt,rent596,intreval = "none")
+rent596$JeffPred <- predict(lm.out,rent596,intreval = "none")
+
+interErrors <- sum((rent596$Rent-rent596$InteractPred)^2)
+kitchErrors <- sum((rent596$Rent-rent596$KitchLogPred)^2)
+jeffErrors <- sum((rent596$Rent-rent596$JeffPred)^2)
+
+cat("Moment of Truth: Jeff: ", jeffErrors / jeffErrors, "Kitchen: ", kitchErrors / jeffErrors, "Inter: ", interErrors / jeffErrors)
 ```
 
-#### Sqft
+# Part D
 ```{r}
-lm.sqft <- lm(Rent ~ log(sqft100), rent596)
-plot(Rent ~ log(sqft100), rent596)
-abline(lm.sqft)
-summary(lm.sqft)
-```
+rentAll <- read.xls(xls = "rent100a.xls")
+rentAll <- rename(rentAll, c("Year.Built"="Yr", "Sq.Feet..in.100s."="sqft100", "Air.Conditioning"="Ac"))
+rent596 <- read.xls(xls = "rent596.xls")
+rent596 <- rename(rent596, c("Year.Built"="Yr", "Sq.Feet..in.100s."="sqft100", "Air.Conditioning"="Ac"))
 
+rentAll <- merge(rentAll, rent596, all = T)
+rentAll$logSqFt100 <- log(rentAll$sqft100)
+logSqFt <- lm(Rent ~ Bathrooms + Yr + logSqFt100 + Ac + Parking + Rooms, rentAll)
 
-#### Only Rooms
-```{r}
-lm.OnlyRooms <- lm(Rent ~ log(sqft100) + log(Rooms) + Bathrooms, rent596)
-summary(lm.OnlyRooms)
-```
-
-#### Year Dummies
-```{r}
-
-```
-
-#### Agg
-```{r}
-lm.aggRooms <- lm(Rent ~ log(sqft100) + log(Rooms) + Bathrooms + Ac + Parking, rent596)
-summary(lm.aggRooms)
-```
-
-#### b)
-```{r}
-rentScaled <- as.data.frame(scale(rent596))
-plot(rentScaled)
-cor(rentScaled)
-kable(head(cor(rentScaled)), n = length(rentScaled)/2 + 1)
-lm.out <- lm(Rent ~ Rooms, rentScaled)
-plot(Rent ~ Rooms, rentScaled)
-abline(lm.out, col = "red")
-summary(lm.out)
-
-minusRooms <- data.frame(RoomsResid=lm.out$residuals)
-minusRooms <- cbind(minusRooms, rentScaled[, -7])
-
-plot(minusRooms)
-
-
-rentScaled$aggRooms <- (rentScaled$Rooms + rentScaled$Bathrooms*2 + rentScaled$sqft100)/3
-
-lm.out2 <- lm(Rent ~ rentScaled$aggRooms + Ac + Parking + Yr, rentScaled)
-summary(lm.out2)
+summary(logSqFt)
 ```
