@@ -32,7 +32,7 @@ pandoc.table(rbind(summary(train), sapply(train, sd)))
 
 a) 
 
-```{r, eval = F}
+```{r, eval = T}
 ols <- lm(int_rate ~ ., trainMeaningFull)
 olsSum <- summary(ols)
 olsSum
@@ -42,7 +42,7 @@ Based on the OLS regression, all of the columns which are not IDs appear to be s
 
 b)
 
-```{r, eval = F}
+```{r, eval = T}
 olsSum$r.squared
 ```
 
@@ -50,26 +50,26 @@ The baseline model has an $R^2$ of about .51. It is hard to judge if the baselin
 
 c)
 
-```{r, eval = F}
+```{r, eval = T}
 plot(ols$fitted.values, ols$residuals)
 ```
 
 d)
 
-```{r, eval = F}
+```{r, eval = T}
 rmse <- mean((ols$residuals)^2)
 rmse
 ```
 
 e)
 
-```{r,  eval = F}
+```{r,  eval = T}
 test <- read.csv("test.csv")
 test <- subset(test, select=-c(id, member_id))
 test <- test[complete.cases(test),]
 ```
 
-```{r, eval = F}
+```{r, eval = T}
 predOLS <- predict(ols,test, interval = "none")
 rmseOLS <- mean((test$int_rate - predOLS)^2)
 cat("RMSE OLS: ", rmseOLS)
@@ -78,13 +78,13 @@ cat("RMSE OLS: ", rmseOLS)
 
 **3.**
 
-```{r,  eval = F}
+```{r,  eval = T}
 interactDF <- as.data.frame(model.matrix(~(.)^2,subset(trainMeaningFull, select=-c(int_rate))))
 interactTest <- as.data.frame(model.matrix(~(.)^2,subset(test, select=-c(int_rate))))
 ```
 
 a) 
-```{r, eval = F}
+```{r, eval = T}
 smallest = lm(trainMeaningFull$int_rate ~ 1, interactDF)
 biggest = as.formula(lm(trainMeaningFull$int_rate ~ ., interactDF))
 stepForwardAIC <- step(smallest, scope = biggest, k = 2, direction ="forward", trace = F)
@@ -94,19 +94,19 @@ cat("R^2 AIC: ", summary(stepForwardAIC)$r.squared, "R^2 BIC: ", summary(stepFor
 
 
 b)
-```{r,  eval = F}
+```{r,  eval = T}
 cat("AIC: ", AIC(stepForwardAIC), "BIC: ", BIC(stepForwardBIC))
 ```
 
 c)
-```{r, eval = F}
+```{r, eval = T}
 rmseAIC <- mean((stepForwardAIC$residuals)^2)
 rmseBIC <- mean((stepForwardBIC$residuals)^2)
 cat("RMSE AIC: ", rmseAIC, "RMSE BIC: ", rmseBIC)
 ```
 
 d)
-```{r, eval = F}
+```{r, eval = T}
 predAIC <- predict(stepForwardAIC,interactTest, interval = "none")
 predBIC <- predict(stepForwardBIC,interactTest, interval = "none")
 rmseAIC <- mean((test$int_rate - predAIC)^2)
@@ -117,7 +117,7 @@ cat("RMSE AIC: ", rmseAIC, "RMSE BIC: ", rmseBIC)
 
 **4.**
 a)
-```{r, eval = F}
+```{r, eval = T}
 biggest = lm(trainMeaningFull$int_rate ~ ., interactDF)
 smallest = as.formula(lm(trainMeaningFull$int_rate ~ 1, interactDF))
 stepBackwardAIC <- step(biggest, scope = smallest, k = 2, direction ="backward", trace = F)
@@ -127,19 +127,19 @@ cat("R^2 AIC: ", summary(stepBackwardAIC)$r.squared, "R^2 BIC: ", summary(stepBa
 
 b)
 
-```{r, eval = F}
+```{r, eval = T}
 cat("AIC: ", AIC(stepBackwardAIC), "BIC: ", BIC(stepBackwardBIC))
 ```
 
 c)
-```{r, eval = F}
+```{r, eval = T}
 rmseBackAIC <- mean((stepBackwardAIC$residuals)^2)
 rmseBackBIC <- mean((stepBackwardBIC$residuals)^2)
 cat("RMSE AIC: ", rmseBackAIC, "RMSE BIC: ", rmseBackBIC)
 ```
 
 d)
-```{r, eval = F}
+```{r, eval = T}
 predBackAIC <- predict(stepBackwardAIC,interactTest, interval = "none")
 predBackBIC <- predict(stepBackwardBIC,interactTest, interval = "none")
 rmseBackAIC <- mean((test$int_rate - predBackAIC)^2)
@@ -150,7 +150,7 @@ cat("RMSE AIC: ", rmseBackAIC, "RMSE BIC: ", rmseBackBIC)
 **5.**
 
 a)
-```{r,  eval = F}
+```{r,  eval = T}
 model=as.formula(paste("~", paste(names(interactDF)[-1], collapse= "+")))
 x=model.matrix(model,interactDF);
 lassoFit <- glmnet(x,trainMeaningFull$int_rate)
@@ -163,14 +163,14 @@ The $R^2$ is calculated based on the $R^2$ calculation in lasso_class; however, 
 
 b) 
 
-```{r,  eval = F}
+```{r,  eval = T}
 insamplePred <- predict(lassoFit, newx = as.matrix(interactDF), s=.0001)
 lassoRMSE <- mean((insamplePred - trainMeaningFull$int_rate)^2)
 cat("RMSE Lasso: ", lassoRMSE)
 ```
 
 c)
-```{r, eval = F}
+```{r, eval = T}
 predLasso <- predict(lassoFit,newx = as.matrix(interactTest), s=.0001)
 lassoRMSE <- mean((test$int_rate - predLasso)^2)
 cat("RMSE Lasso: ", lassoRMSE)
@@ -179,20 +179,20 @@ cat("RMSE Lasso: ", lassoRMSE)
 **6.**
 
 a)
-```{r,  eval = F}
+```{r,  eval = T}
 lassoCVFit <- cv.glmnet(x,trainMeaningFull$int_rate, nfolds = 10)
 lassoCVFit$lambda.min
 ```
 
 b)
-```{r,  eval = F}
+```{r,  eval = T}
 insampleCVPred <- predict(lassoCVFit, newx = as.matrix(interactDF), s="lambda.min")
 lassoCVRMSE <- mean((insampleCVPred - trainMeaningFull$int_rate)^2)
 cat("RMSE CVLasso: ", lassoCVRMSE)
 ```
 
 c)
-```{r, eval = F}
+```{r, eval = T}
 predCVLasso <- predict(lassoCVFit,newx = as.matrix(interactTest), s="lambda.min")
 lassoCVRMSE <- mean((test$int_rate - predCVLasso)^2)
 cat("RMSE CVLasso: ", lassoCVRMSE)
@@ -201,13 +201,13 @@ cat("RMSE CVLasso: ", lassoCVRMSE)
 
 ## Logit Homework
 
-```{r,  eval = F}
+```{r,  eval = T}
 trades <- read.csv("detailed_trades_est.csv")
 ```
 
 1)
 
-```{r,  eval = F}
+```{r,  eval = T}
 logit <- glm(PCHANGE~LASK+LBID+RETURN+SIGN_VOL, family=binomial, data=trades)
 cat("Lasso AIC: ", AIC(logit), "Lasso BIC: ", BIC(logit))
 ```
@@ -215,20 +215,20 @@ cat("Lasso AIC: ", AIC(logit), "Lasso BIC: ", BIC(logit))
 
 2)
 
-```{r,  eval = F}
+```{r,  eval = T}
 interactions <- subset(trades,select = -c(PCHANGE,PCHANGE0))
 interactions <- as.data.frame(model.matrix(~(.)^2, interactions))
 ```
 
 3)
 
-```{r,  eval = F}
+```{r,  eval = T}
 trades.pca <- prcomp(interactions)
 myModel <- lm(trades$PCHANGE~trades.pca$x[,1]+trades.pca$x[,2]+trades.pca$x[,3])
 ```
 
 4)
-```{r,  eval = F}
+```{r,  eval = T}
 error <- trades$PCHANGE-(as.numeric(myModel$fitted.values > .5))
 mean(abs(error))
 ```
