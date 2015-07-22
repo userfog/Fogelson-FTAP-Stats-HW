@@ -1,0 +1,61 @@
+---
+title: "FTAP HW 7"
+author: "Zachary Fogelson"
+date: "July 21, 2015"
+output: html_document
+---
+
+```{r, include = F}
+library(gdata)
+library(plyr)
+library(knitr)
+```
+
+## Lasso Homework
+
+### Problem 1
+
+**1.**
+```{r}
+train <- read.csv("train.csv")
+kable(head(train))
+kable(rbind(summary(train), sapply(train, sd)))
+```
+
+**2.**
+
+a) 
+
+```{r}
+trainMeaningFull <-subset(train, select=-c(id, member_id, emp_length, revol_util))
+ols <- lm(int_rate ~ ., trainMeaningFull)
+olsSum <- summary(ols)
+```
+
+Based on the OLS regression, all of the columns which are not IDs or have Na's appear to be significant
+
+b)
+
+```{r}
+olsSum$r.squared
+```
+
+The baseline model has an $R^2$ of about .39. It is hard to judge if the baseline model is successful because, we do not have anything to compare it to. But using all of the available information we can explain 39% of the variance which is not terrible.
+
+c)
+
+```{r}
+plot(ols$fitted.values, ols$residuals)
+```
+
+d)
+
+```{r}
+rmse <- mean((ols$residuals - ols$fitted.values)^2)
+rmse
+```
+
+e)
+```{r}
+
+```
