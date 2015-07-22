@@ -74,6 +74,7 @@ img {
 <h3>Problem 1</h3>
 <p><strong>1.</strong></p>
 <pre class="r"><code>train &lt;- read.csv(&quot;train.csv&quot;)
+trainMeaningFull &lt;-subset(train, select=-c(id, member_id, emp_length, revol_util))
 kable(head(train))</code></pre>
 <table>
 <thead>
@@ -293,8 +294,7 @@ kable(head(train))</code></pre>
 <ol style="list-style-type: lower-alpha">
 <li></li>
 </ol>
-<pre class="r"><code>trainMeaningFull &lt;-subset(train, select=-c(id, member_id, emp_length, revol_util))
-ols &lt;- lm(int_rate ~ ., trainMeaningFull)
+<pre class="r"><code>ols &lt;- lm(int_rate ~ ., trainMeaningFull)
 olsSum &lt;- summary(ols)</code></pre>
 <p>Based on the OLS regression, all of the columns which are not IDs or have Na’s appear to be significant</p>
 <ol start="2" style="list-style-type: lower-alpha">
@@ -311,9 +311,273 @@ olsSum &lt;- summary(ols)</code></pre>
 <ol start="4" style="list-style-type: lower-alpha">
 <li></li>
 </ol>
-<pre class="r"><code>rmse &lt;- mean((ols$residuals - ols$fitted.values)^2)
+<pre class="r"><code>rmse &lt;- mean((ols$residuals)^2)
 rmse</code></pre>
-<pre><code>## [1] 0.01549461</code></pre>
+<pre><code>## [1] 0.0008002864</code></pre>
+<ol start="5" style="list-style-type: lower-alpha">
+<li></li>
+</ol>
+<pre class="r"><code>test &lt;- read.csv(&quot;test.csv&quot;)
+test &lt;- subset(test, select=-c(id, member_id, emp_length, revol_util))
+test &lt;- test[complete.cases(test),]</code></pre>
+<pre class="r"><code>predOLS &lt;- predict(ols,test, interval = &quot;none&quot;)
+rmseOLS &lt;- mean((test$int_rate - predOLS)^2)
+cat(&quot;RMSE OLS: &quot;, rmseOLS)</code></pre>
+<pre><code>## RMSE OLS:  0.0009510096</code></pre>
+<p><strong>3.</strong></p>
+<pre class="r"><code>interactDF &lt;- as.data.frame(model.matrix(~(.)^2,subset(trainMeaningFull, select=-c(int_rate))))
+interactTest &lt;- as.data.frame(model.matrix(~(.)^2,subset(test, select=-c(int_rate))))</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li></li>
+</ol>
+<pre class="r"><code>smallest = lm(trainMeaningFull$int_rate ~ 1, interactDF)
+biggest = as.formula(lm(trainMeaningFull$int_rate ~ ., interactDF))
+stepForwardAIC &lt;- step(smallest, scope = biggest, k = 2, direction =&quot;forward&quot;, trace = F)
+stepForwardBIC &lt;- step(smallest, scope = biggest, k = log(length(trainMeaningFull$int_rate)), direction =&quot;forward&quot;, trace = F)
+summary(stepForwardAIC)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = trainMeaningFull$int_rate ~ term_m + `term_m:installment` + 
+##     funded_amnt + installment + `funded_amnt:term_m` + `funded_amnt:installment` + 
+##     `installment:dti` + dti + `annual_inc:dti` + `term_m:dti` + 
+##     `funded_amnt:dti` + annual_inc + `funded_amnt:annual_inc` + 
+##     `installment:annual_inc` + `term_m:annual_inc`, data = interactDF)
+## 
+## Residuals:
+##       Min        1Q    Median        3Q       Max 
+## -0.105406 -0.008977  0.000194  0.008061  0.121621 
+## 
+## Coefficients:
+##                             Estimate Std. Error  t value Pr(&gt;|t|)    
+## (Intercept)                2.434e-02  1.724e-03   14.119   &lt;2e-16 ***
+## term_m                     2.015e-03  4.262e-05   47.274   &lt;2e-16 ***
+## `term_m:installment`      -2.323e-05  3.694e-07  -62.886   &lt;2e-16 ***
+## funded_amnt               -9.958e-05  6.345e-07 -156.945   &lt;2e-16 ***
+## installment                2.640e-03  2.017e-05  130.867   &lt;2e-16 ***
+## `funded_amnt:term_m`       1.185e-06  1.103e-08  107.461   &lt;2e-16 ***
+## `funded_amnt:installment` -2.400e-09  5.531e-11  -43.392   &lt;2e-16 ***
+## `installment:dti`         -5.404e-06  4.009e-07  -13.479   &lt;2e-16 ***
+## dti                        1.312e-03  9.689e-05   13.541   &lt;2e-16 ***
+## `annual_inc:dti`          -4.248e-10  2.341e-10   -1.815   0.0695 .  
+## `term_m:dti`              -2.558e-05  2.352e-06  -10.877   &lt;2e-16 ***
+## `funded_amnt:dti`          1.407e-07  1.225e-08   11.490   &lt;2e-16 ***
+## annual_inc                 2.621e-07  1.151e-08   22.765   &lt;2e-16 ***
+## `funded_amnt:annual_inc`   3.629e-11  1.321e-12   27.463   &lt;2e-16 ***
+## `installment:annual_inc`  -1.129e-09  4.182e-11  -26.994   &lt;2e-16 ***
+## `term_m:annual_inc`       -7.165e-09  2.960e-10  -24.208   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.01686 on 34014 degrees of freedom
+## Multiple R-squared:  0.7837, Adjusted R-squared:  0.7836 
+## F-statistic:  8216 on 15 and 34014 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>summary(stepForwardBIC)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = trainMeaningFull$int_rate ~ term_m + `term_m:installment` + 
+##     funded_amnt + installment + `funded_amnt:term_m` + `funded_amnt:installment` + 
+##     `installment:dti` + dti + `annual_inc:dti`, data = interactDF)
+## 
+## Residuals:
+##       Min        1Q    Median        3Q       Max 
+## -0.105365 -0.009233  0.000332  0.008219  0.113695 
+## 
+## Coefficients:
+##                             Estimate Std. Error  t value Pr(&gt;|t|)    
+## (Intercept)                5.612e-02  8.239e-04   68.115  &lt; 2e-16 ***
+## term_m                     1.180e-03  1.844e-05   63.957  &lt; 2e-16 ***
+## `term_m:installment`      -2.253e-05  3.718e-07  -60.611  &lt; 2e-16 ***
+## funded_amnt               -9.336e-05  5.872e-07 -158.997  &lt; 2e-16 ***
+## installment                2.445e-03  1.864e-05  131.161  &lt; 2e-16 ***
+## `funded_amnt:term_m`       1.161e-06  1.110e-08  104.588  &lt; 2e-16 ***
+## `funded_amnt:installment` -2.325e-09  5.184e-11  -44.855  &lt; 2e-16 ***
+## `installment:dti`         -8.867e-07  6.940e-08  -12.777  &lt; 2e-16 ***
+## dti                        3.574e-04  2.612e-05   13.685  &lt; 2e-16 ***
+## `annual_inc:dti`          -1.313e-09  1.877e-10   -6.992 2.75e-12 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.01706 on 34020 degrees of freedom
+## Multiple R-squared:  0.7785, Adjusted R-squared:  0.7784 
+## F-statistic: 1.328e+04 on 9 and 34020 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p>The in-sample <span class="math">\(R^2\)</span> of the AIC function is .988.</p>
+<ol start="2" style="list-style-type: lower-alpha">
+<li><p>See summaries above</p></li>
+<li></li>
+</ol>
+<pre class="r"><code>rmseAIC &lt;- mean((stepForwardAIC$residuals)^2)
+rmseBIC &lt;- mean((stepForwardBIC$residuals)^2)
+cat(&quot;RMSE AIC: &quot;, rmseAIC, &quot;RMSE BIC: &quot;, rmseBIC)</code></pre>
+<pre><code>## RMSE AIC:  0.000284109 RMSE BIC:  0.0002909594</code></pre>
+<ol start="4" style="list-style-type: lower-alpha">
+<li></li>
+</ol>
+<pre class="r"><code>predAIC &lt;- predict(stepForwardAIC,interactTest, interval = &quot;none&quot;)
+predBIC &lt;- predict(stepForwardBIC,interactTest, interval = &quot;none&quot;)
+rmseAIC &lt;- mean((test$int_rate - predAIC)^2)
+rmseBIC &lt;- mean((test$int_rate - predBIC)^2)
+cat(&quot;RMSE AIC: &quot;, rmseAIC, &quot;RMSE BIC: &quot;, rmseBIC)</code></pre>
+<pre><code>## RMSE AIC:  0.000361971 RMSE BIC:  0.0003723201</code></pre>
+<p><strong>4.</strong> a)</p>
+<pre class="r"><code>biggest = lm(trainMeaningFull$int_rate ~ ., interactDF)
+smallest = as.formula(lm(trainMeaningFull$int_rate ~ 1, interactDF))
+stepBackwardAIC &lt;- step(biggest, scope = smallest, k = 2, direction =&quot;backward&quot;, trace = F)
+stepBackwardBIC &lt;- step(biggest, scope = smallest, k = log(length(trainMeaningFull$int_rate)), direction =&quot;backward&quot;, trace = F)
+summary(stepBackwardAIC)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = trainMeaningFull$int_rate ~ funded_amnt + term_m + 
+##     installment + annual_inc + dti + `funded_amnt:term_m` + `funded_amnt:installment` + 
+##     `funded_amnt:annual_inc` + `funded_amnt:dti` + `term_m:installment` + 
+##     `term_m:annual_inc` + `term_m:dti` + `installment:annual_inc` + 
+##     `installment:dti` + `annual_inc:dti`, data = interactDF)
+## 
+## Residuals:
+##       Min        1Q    Median        3Q       Max 
+## -0.105406 -0.008977  0.000194  0.008061  0.121621 
+## 
+## Coefficients:
+##                             Estimate Std. Error  t value Pr(&gt;|t|)    
+## (Intercept)                2.434e-02  1.724e-03   14.119   &lt;2e-16 ***
+## funded_amnt               -9.958e-05  6.345e-07 -156.945   &lt;2e-16 ***
+## term_m                     2.015e-03  4.262e-05   47.274   &lt;2e-16 ***
+## installment                2.640e-03  2.017e-05  130.867   &lt;2e-16 ***
+## annual_inc                 2.621e-07  1.151e-08   22.765   &lt;2e-16 ***
+## dti                        1.312e-03  9.689e-05   13.541   &lt;2e-16 ***
+## `funded_amnt:term_m`       1.185e-06  1.103e-08  107.461   &lt;2e-16 ***
+## `funded_amnt:installment` -2.400e-09  5.531e-11  -43.392   &lt;2e-16 ***
+## `funded_amnt:annual_inc`   3.629e-11  1.321e-12   27.463   &lt;2e-16 ***
+## `funded_amnt:dti`          1.407e-07  1.225e-08   11.490   &lt;2e-16 ***
+## `term_m:installment`      -2.323e-05  3.694e-07  -62.886   &lt;2e-16 ***
+## `term_m:annual_inc`       -7.165e-09  2.960e-10  -24.208   &lt;2e-16 ***
+## `term_m:dti`              -2.558e-05  2.352e-06  -10.877   &lt;2e-16 ***
+## `installment:annual_inc`  -1.129e-09  4.182e-11  -26.994   &lt;2e-16 ***
+## `installment:dti`         -5.404e-06  4.009e-07  -13.479   &lt;2e-16 ***
+## `annual_inc:dti`          -4.248e-10  2.341e-10   -1.815   0.0695 .  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.01686 on 34014 degrees of freedom
+## Multiple R-squared:  0.7837, Adjusted R-squared:  0.7836 
+## F-statistic:  8216 on 15 and 34014 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>summary(stepBackwardBIC)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = trainMeaningFull$int_rate ~ funded_amnt + term_m + 
+##     installment + annual_inc + dti + `funded_amnt:term_m` + `funded_amnt:installment` + 
+##     `funded_amnt:annual_inc` + `funded_amnt:dti` + `term_m:installment` + 
+##     `term_m:annual_inc` + `term_m:dti` + `installment:annual_inc` + 
+##     `installment:dti`, data = interactDF)
+## 
+## Residuals:
+##       Min        1Q    Median        3Q       Max 
+## -0.105611 -0.008993  0.000194  0.008068  0.123316 
+## 
+## Coefficients:
+##                             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)                2.414e-02  1.720e-03   14.03   &lt;2e-16 ***
+## funded_amnt               -9.961e-05  6.343e-07 -157.04   &lt;2e-16 ***
+## term_m                     2.020e-03  4.252e-05   47.51   &lt;2e-16 ***
+## installment                2.642e-03  2.016e-05  131.01   &lt;2e-16 ***
+## annual_inc                 2.635e-07  1.149e-08   22.94   &lt;2e-16 ***
+## dti                        1.300e-03  9.667e-05   13.45   &lt;2e-16 ***
+## `funded_amnt:term_m`       1.185e-06  1.103e-08  107.46   &lt;2e-16 ***
+## `funded_amnt:installment` -2.392e-09  5.514e-11  -43.38   &lt;2e-16 ***
+## `funded_amnt:annual_inc`   3.652e-11  1.315e-12   27.77   &lt;2e-16 ***
+## `funded_amnt:dti`          1.411e-07  1.224e-08   11.52   &lt;2e-16 ***
+## `term_m:installment`      -2.323e-05  3.694e-07  -62.90   &lt;2e-16 ***
+## `term_m:annual_inc`       -7.221e-09  2.944e-10  -24.53   &lt;2e-16 ***
+## `term_m:dti`              -2.568e-05  2.352e-06  -10.92   &lt;2e-16 ***
+## `installment:annual_inc`  -1.140e-09  4.140e-11  -27.53   &lt;2e-16 ***
+## `installment:dti`         -5.448e-06  4.002e-07  -13.61   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.01686 on 34015 degrees of freedom
+## Multiple R-squared:  0.7837, Adjusted R-squared:  0.7836 
+## F-statistic:  8802 on 14 and 34015 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p>The <span class="math">\(R^2\)</span> term for the best fitting model in the backward model is .988.</p>
+<ol start="2" style="list-style-type: lower-alpha">
+<li></li>
+</ol>
+<p>See summaries above.</p>
+<ol start="3" style="list-style-type: lower-alpha">
+<li></li>
+</ol>
+<pre class="r"><code>rmseBackAIC &lt;- mean((stepBackwardAIC$residuals)^2)
+rmseBackBIC &lt;- mean((stepBackwardBIC$residuals)^2)
+cat(&quot;RMSE AIC: &quot;, rmseBackAIC, &quot;RMSE BIC: &quot;, rmseBackBIC)</code></pre>
+<pre><code>## RMSE AIC:  0.000284109 RMSE BIC:  0.0002841365</code></pre>
+<ol start="4" style="list-style-type: lower-alpha">
+<li></li>
+</ol>
+<pre class="r"><code>predBackAIC &lt;- predict(stepBackwardAIC,interactTest, interval = &quot;none&quot;)
+predBackBIC &lt;- predict(stepBackwardBIC,interactTest, interval = &quot;none&quot;)
+rmseBackAIC &lt;- mean((test$int_rate - predBackAIC)^2)
+rmseBackBIC &lt;- mean((test$int_rate - predBackBIC)^2)
+cat(&quot;RMSE AIC: &quot;, rmseBackAIC, &quot;RMSE BIC: &quot;, rmseBackBIC)</code></pre>
+<pre><code>## RMSE AIC:  0.000361971 RMSE BIC:  0.0003618948</code></pre>
+<p><strong>5.</strong></p>
+<ol style="list-style-type: lower-alpha">
+<li></li>
+</ol>
+<pre class="r"><code>model=as.formula(paste(&quot;~&quot;, paste(names(interactDF)[-1], collapse= &quot;+&quot;)))
+x=model.matrix(model,interactDF);
+lassoFit &lt;- glmnet(x,trainMeaningFull$int_rate)
+coef(lassoFit, s=.0001)</code></pre>
+<pre><code>## 17 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+##                                     1
+## (Intercept)              3.844155e-02
+## (Intercept)              .           
+## funded_amnt             -3.108960e-05
+## term_m                   1.660064e-03
+## installment              4.840688e-04
+## annual_inc              -6.508191e-09
+## dti                      2.400461e-04
+## funded_amnt:term_m       1.361600e-08
+## funded_amnt:installment -1.486136e-09
+## funded_amnt:annual_inc   .           
+## funded_amnt:dti         -1.275527e-08
+## term_m:installment       1.390937e-05
+## term_m:annual_inc        .           
+## term_m:dti               .           
+## installment:annual_inc   .           
+## installment:dti          .           
+## annual_inc:dti          -3.621717e-10</code></pre>
+<p>There is no <span class="math">\(R^2\)</span> for the lasso model.</p>
+<ol start="2" style="list-style-type: lower-alpha">
+<li></li>
+</ol>
+<pre class="r"><code>insamplePred &lt;- predict(lassoFit, newx = as.matrix(interactDF), s=.0001)
+lassoRMSE &lt;- mean((insamplePred - trainMeaningFull$int_rate)^2)
+cat(&quot;RMSE Lasso: &quot;, lassoRMSE)</code></pre>
+<pre><code>## RMSE Lasso:  0.0003869228</code></pre>
+<ol start="3" style="list-style-type: lower-alpha">
+<li></li>
+</ol>
+<pre class="r"><code>predLasso &lt;- predict(lassoFit,newx = as.matrix(interactTest), s=.0001)
+lassoRMSE &lt;- mean((test$int_rate - predLasso)^2)
+cat(&quot;RMSE Lasso: &quot;, lassoRMSE)</code></pre>
+<p><strong>6.</strong></p>
+<ol style="list-style-type: lower-alpha">
+<li></li>
+</ol>
+<pre class="r"><code>lassoCVFit &lt;- cv.glmnet(x,trainMeaningFull$int_rate, nfolds = 10)
+lassoCVFit$lambda.min</code></pre>
+<pre><code>## [1] 2.106168e-05</code></pre>
+<ol start="2" style="list-style-type: lower-alpha">
+<li></li>
+</ol>
+<pre class="r"><code>insampleCVPred &lt;- predict(lassoCVFit, newx = as.matrix(interactDF), s=&quot;lambda.min&quot;)
+lassoCVRMSE &lt;- mean((insampleCVPred - trainMeaningFull$int_rate)^2)
+cat(&quot;RMSE CVLasso: &quot;, lassoCVRMSE)</code></pre>
+<pre><code>## RMSE CVLasso:  0.0003080186</code></pre>
+<ol start="3" style="list-style-type: lower-alpha">
+<li></li>
+</ol>
+<pre class="r"><code>predCVLasso &lt;- predict(lassoCVFit,newx = as.matrix(interactTest[-1]), s=&quot;lambda.min&quot;)
+lassoCVRMSE &lt;- mean((test$int_rate - predCVLasso)^2)
+cat(&quot;RMSE CVLasso: &quot;, lassoCVRMSE)</code></pre>
 </div>
 </div>
 

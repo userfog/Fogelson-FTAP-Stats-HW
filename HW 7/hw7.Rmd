@@ -9,6 +9,8 @@ output: html_document
 library(gdata)
 library(plyr)
 library(knitr)
+library(MASS)
+library(glmnet)
 ```
 
 ## Lasso Homework
@@ -18,6 +20,7 @@ library(knitr)
 **1.**
 ```{r}
 train <- read.csv("train.csv")
+trainMeaningFull <-subset(train, select=-c(id, member_id, emp_length, revol_util))
 kable(head(train))
 kable(rbind(summary(train), sapply(train, sd)))
 ```
@@ -26,8 +29,7 @@ kable(rbind(summary(train), sapply(train, sd)))
 
 a) 
 
-```{r}
-trainMeaningFull <-subset(train, select=-c(id, member_id, emp_length, revol_util))
+```{r, eval = F}
 ols <- lm(int_rate ~ ., trainMeaningFull)
 olsSum <- summary(ols)
 ```
@@ -36,7 +38,7 @@ Based on the OLS regression, all of the columns which are not IDs or have Na's a
 
 b)
 
-```{r}
+```{r, eval = F}
 olsSum$r.squared
 ```
 
@@ -44,18 +46,153 @@ The baseline model has an $R^2$ of about .39. It is hard to judge if the baselin
 
 c)
 
-```{r}
+```{r, eval = F}
 plot(ols$fitted.values, ols$residuals)
 ```
 
 d)
 
-```{r}
-rmse <- mean((ols$residuals - ols$fitted.values)^2)
+```{r, eval = F}
+rmse <- mean((ols$residuals)^2)
 rmse
 ```
 
 e)
-```{r}
 
+```{r}
+test <- read.csv("test.csv")
+test <- subset(test, select=-c(id, member_id, emp_length, revol_util))
+test <- test[complete.cases(test),]
 ```
+
+```{r, eval = F}
+predOLS <- predict(ols,test, interval = "none")
+rmseOLS <- mean((test$int_rate - predOLS)^2)
+cat("RMSE OLS: ", rmseOLS)
+```
+
+
+**3.**
+
+```{r}
+interactDF <- as.data.frame(model.matrix(~(.)^2,subset(trainMeaningFull, select=-c(int_rate))))
+interactTest <- as.data.frame(model.matrix(~(.)^2,subset(test, select=-c(int_rate))))
+```
+
+a) 
+```{r, eval = F}
+smallest = lm(trainMeaningFull$int_rate ~ 1, interactDF)
+biggest = as.formula(lm(trainMeaningFull$int_rate ~ ., interactDF))
+stepForwardAIC <- step(smallest, scope = biggest, k = 2, direction ="forward", trace = F)
+stepForwardBIC <- step(smallest, scope = biggest, k = log(length(trainMeaningFull$int_rate)), direction ="forward", trace = F)
+summary(stepForwardAIC)
+summary(stepForwardBIC)
+```
+
+The in-sample $R^2$ of the AIC function is .988.
+
+b)
+See summaries above
+
+c)
+```{r, eval = F}
+rmseAIC <- mean((stepForwardAIC$residuals)^2)
+rmseBIC <- mean((stepForwardBIC$residuals)^2)
+cat("RMSE AIC: ", rmseAIC, "RMSE BIC: ", rmseBIC)
+```
+
+d)
+```{r, eval = F}
+predAIC <- predict(stepForwardAIC,interactTest, interval = "none")
+predBIC <- predict(stepForwardBIC,interactTest, interval = "none")
+rmseAIC <- mean((test$int_rate - predAIC)^2)
+rmseBIC <- mean((test$int_rate - predBIC)^2)
+cat("RMSE AIC: ", rmseAIC, "RMSE BIC: ", rmseBIC)
+```
+
+
+**4.**
+a)
+```{r, eval = F}
+biggest = lm(trainMeaningFull$int_rate ~ ., interactDF)
+smallest = as.formula(lm(trainMeaningFull$int_rate ~ 1, interactDF))
+stepBackwardAIC <- step(biggest, scope = smallest, k = 2, direction ="backward", trace = F)
+stepBackwardBIC <- step(biggest, scope = smallest, k = log(length(trainMeaningFull$int_rate)), direction ="backward", trace = F)
+summary(stepBackwardAIC)
+summary(stepBackwardBIC)
+```
+
+The $R^2$ term for the best fitting model in the backward model is .988.
+
+b)
+
+See summaries above.
+
+c)
+```{r, eval = F}
+rmseBackAIC <- mean((stepBackwardAIC$residuals)^2)
+rmseBackBIC <- mean((stepBackwardBIC$residuals)^2)
+cat("RMSE AIC: ", rmseBackAIC, "RMSE BIC: ", rmseBackBIC)
+```
+
+d)
+```{r, eval = F}
+predBackAIC <- predict(stepBackwardAIC,interactTest, interval = "none")
+predBackBIC <- predict(stepBackwardBIC,interactTest, interval = "none")
+rmseBackAIC <- mean((test$int_rate - predBackAIC)^2)
+rmseBackBIC <- mean((test$int_rate - predBackBIC)^2)
+cat("RMSE AIC: ", rmseBackAIC, "RMSE BIC: ", rmseBackBIC)
+```
+
+**5.**
+
+a)
+```{r}
+model=as.formula(paste("~", paste(names(interactDF)[-1], collapse= "+")))
+x=model.matrix(model,interactDF);
+lassoFit <- glmnet(x,trainMeaningFull$int_rate)
+coef(lassoFit, s=.0001)
+```
+
+There is no $R^2$ for the lasso model.
+
+b) 
+
+```{r}
+insamplePred <- predict(lassoFit, newx = as.matrix(interactDF), s=.0001)
+lassoRMSE <- mean((insamplePred - trainMeaningFull$int_rate)^2)
+cat("RMSE Lasso: ", lassoRMSE)
+```
+
+c)
+```{r, eval = F}
+predLasso <- predict(lassoFit,newx = as.matrix(interactTest), s=.0001)
+lassoRMSE <- mean((test$int_rate - predLasso)^2)
+cat("RMSE Lasso: ", lassoRMSE)
+```
+
+**6.**
+
+a)
+```{r}
+lassoCVFit <- cv.glmnet(x,trainMeaningFull$int_rate, nfolds = 10)
+lassoCVFit$lambda.min
+```
+
+b)
+```{r}
+insampleCVPred <- predict(lassoCVFit, newx = as.matrix(interactDF), s="lambda.min")
+lassoCVRMSE <- mean((insampleCVPred - trainMeaningFull$int_rate)^2)
+cat("RMSE CVLasso: ", lassoCVRMSE)
+```
+
+c)
+```{r, eval = F}
+predCVLasso <- predict(lassoCVFit,newx = as.matrix(interactTest[-1]), s="lambda.min")
+lassoCVRMSE <- mean((test$int_rate - predCVLasso)^2)
+cat("RMSE CVLasso: ", lassoCVRMSE)
+```
+
+
+## Logit Homework
+
