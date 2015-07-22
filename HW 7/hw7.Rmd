@@ -2,7 +2,7 @@
 title: "FTAP HW 7"
 author: "Zachary Fogelson"
 date: "July 21, 2015"
-output: pdf_document
+output: html_document
 ---
 
 ```{r, include = F}
@@ -11,6 +11,7 @@ library(plyr)
 library(knitr)
 library(MASS)
 library(glmnet)
+library(pander)
 ```
 
 ## Lasso Homework
@@ -20,9 +21,10 @@ library(glmnet)
 **1.**
 ```{r}
 train <- read.csv("train.csv")
-trainMeaningFull <-subset(train, select=-c(id, member_id, emp_length, revol_util))
-kable(head(train))
-kable(rbind(summary(train), sapply(train, sd)))
+trainMeaningFull <-subset(train, select=-c(id, member_id))
+trainMeaningFull <- trainMeaningFull[complete.cases(trainMeaningFull),]
+pandoc.table(head(train), style = "rmarkdown")
+pandoc.table(rbind(summary(train), sapply(train, sd)), style = "rmarkdown")
 ```
 
 **2.**
@@ -61,7 +63,7 @@ e)
 
 ```{r}
 test <- read.csv("test.csv")
-test <- subset(test, select=-c(id, member_id, emp_length, revol_util))
+test <- subset(test, select=-c(id, member_id))
 test <- test[complete.cases(test),]
 ```
 
@@ -85,14 +87,17 @@ smallest = lm(trainMeaningFull$int_rate ~ 1, interactDF)
 biggest = as.formula(lm(trainMeaningFull$int_rate ~ ., interactDF))
 stepForwardAIC <- step(smallest, scope = biggest, k = 2, direction ="forward", trace = F)
 stepForwardBIC <- step(smallest, scope = biggest, k = log(length(trainMeaningFull$int_rate)), direction ="forward", trace = F)
-summary(stepForwardAIC)
-summary(stepForwardBIC)
+AIC(stepForwardAIC)
+BIC(stepForwardBIC)
 ```
 
 The in-sample $R^2$ of the AIC function is .988.
 
 b)
-See summaries above
+```{r}
+summary(stepForwardAIC)
+summary(stepForwardBIC)
+```
 
 c)
 ```{r, eval = T}
@@ -118,15 +123,18 @@ biggest = lm(trainMeaningFull$int_rate ~ ., interactDF)
 smallest = as.formula(lm(trainMeaningFull$int_rate ~ 1, interactDF))
 stepBackwardAIC <- step(biggest, scope = smallest, k = 2, direction ="backward", trace = F)
 stepBackwardBIC <- step(biggest, scope = smallest, k = log(length(trainMeaningFull$int_rate)), direction ="backward", trace = F)
-summary(stepBackwardAIC)
-summary(stepBackwardBIC)
+AIC(stepBackwardAIC)
+BIC(stepBackwardBIC)
 ```
 
 The $R^2$ term for the best fitting model in the backward model is .988.
 
 b)
 
-See summaries above.
+```{r}
+summary(stepBackwardAIC)
+summary(stepBackwardBIC)
+```
 
 c)
 ```{r, eval = T}
@@ -165,7 +173,7 @@ cat("RMSE Lasso: ", lassoRMSE)
 ```
 
 c)
-```{r, eval = F}
+```{r, eval = T}
 predLasso <- predict(lassoFit,newx = as.matrix(interactTest), s=.0001)
 lassoRMSE <- mean((test$int_rate - predLasso)^2)
 cat("RMSE Lasso: ", lassoRMSE)
@@ -187,8 +195,8 @@ cat("RMSE CVLasso: ", lassoCVRMSE)
 ```
 
 c)
-```{r, eval = F}
-predCVLasso <- predict(lassoCVFit,newx = as.matrix(interactTest[-1]), s="lambda.min")
+```{r, eval = T}
+predCVLasso <- predict(lassoCVFit,newx = as.matrix(interactTest), s="lambda.min")
 lassoCVRMSE <- mean((test$int_rate - predCVLasso)^2)
 cat("RMSE CVLasso: ", lassoCVRMSE)
 ```
