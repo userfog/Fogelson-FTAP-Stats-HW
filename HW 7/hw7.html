@@ -580,6 +580,34 @@ lassoCVRMSE &lt;- mean((test$int_rate - predCVLasso)^2)
 cat(&quot;RMSE CVLasso: &quot;, lassoCVRMSE)</code></pre>
 </div>
 </div>
+<div id="logit-homework" class="section level2">
+<h2>Logit Homework</h2>
+<pre class="r"><code>trades &lt;- read.csv(&quot;detailed_trades_est.csv&quot;)</code></pre>
+<ol style="list-style-type: decimal">
+<li></li>
+</ol>
+<pre class="r"><code>logit &lt;- glm(PCHANGE~LASK+LBID+RETURN+SIGN_VOL, family=binomial, data=trades)
+AIC(logit)</code></pre>
+<pre><code>## [1] 3754.378</code></pre>
+<pre class="r"><code>BIC(logit)</code></pre>
+<pre><code>## [1] 3784.334</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li></li>
+</ol>
+<pre class="r"><code>interactions &lt;- subset(trades,select = -c(PCHANGE,PCHANGE0))
+interactions &lt;- as.data.frame(model.matrix(~(.)^2, interactions))</code></pre>
+<ol start="3" style="list-style-type: decimal">
+<li></li>
+</ol>
+<pre class="r"><code>trades.pca &lt;- prcomp(interactions)
+myModel &lt;- lm(trades$PCHANGE~trades.pca$x[,1]+trades.pca$x[,2]+trades.pca$x[,3])</code></pre>
+<ol start="4" style="list-style-type: decimal">
+<li></li>
+</ol>
+<pre class="r"><code>error &lt;- trades$PCHANGE-(as.numeric(myModel$fitted.values &gt; .5))
+mean(abs(error))</code></pre>
+<pre><code>## [1] 0.3431472</code></pre>
+</div>
 
 
 </div>
