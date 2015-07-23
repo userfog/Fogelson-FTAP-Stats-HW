@@ -63,6 +63,7 @@ lines(ar2, col = rainbow(4, alpha = .5)[1])
 lines(ar3, col = rainbow(4, alpha  = .5)[2])
 lines(ar4, col = rainbow(4, alpha = .5)[3])
 lines(ar5, col = rainbow(4, alpha = .5)[4])
+legend("bottomleft", c("ar1","ar2", "ar3", "ar4", "ar5"), col=c('black', rainbow(4, alpha = .5)[1], rainbow(4, alpha  = .5)[2], rainbow(4, alpha = .5)[3], rainbow(4, alpha = .5)[4]), lty=1, cex=.75, horiz = T)
 ```
 
 Yes, the plots look like I would expect, all plots are centered around their respective means and "swing" as a function of their $\beta_1$
@@ -73,17 +74,19 @@ Yes, all of the series appear to be mean reverting, series 1-4 revert to 0, seri
 
 **d**
 
-```{r}
+```{r, message=F}
 pr <- function(p){
   print(p$pred)
 }
 
-p1 <- predict(arima(ar1, order = c(1,0,0)), n.ahead = 1)
-p2 <- predict(arima(ar2, order = c(1,0,0)), n.ahead = 1)
-p3 <- predict(arima(ar3, order = c(1,0,0)), n.ahead = 1)
-p4 <- predict(arima(ar4, order = c(1,0,0)), n.ahead = 1)
-p5 <- predict(arima(ar5, order = c(1,0,0)), n.ahead = 1)
+p1 <- predict(arima(ar1, order = c(1,0,0)), n.ahead = 1, Trace = F)
+p2 <- predict(arima(ar2, order = c(1,0,0)), n.ahead = 1, Trace = F)
+p3 <- predict(arima(ar3, order = c(1,0,0)), n.ahead = 1, Trace = F)
+p4 <- predict(arima(ar4, order = c(1,0,0)), n.ahead = 1, Trace = F)
+p5 <- predict(arima(ar5, order = c(1,0,0)), n.ahead = 1, Trace = F)
+```
 
+```{r}
 mapply(pr, list(p1, p2, p3, p4, p5))
 ```
 
@@ -163,6 +166,7 @@ Therefore, the unconditional mean for ma1 $= 1$ and the unconditional mean for m
 ```{r, eval = T}
 plot(ma1, type = "l", ylim = c(-5,5))
 lines(ma2, col = "red")
+legend("bottomleft", c("ma1","ma2"), pch=1, col=c('black', 'red'), lty=1, cex=.75)
 ```
 
 **c**
@@ -213,6 +217,7 @@ hpc <- subset(hpc, select = c(YEAR, CHXR, ret_raw, CHXR.SA, ret_sa))
 hpc <- hpc[complete.cases(hpc),]
 hpcXts <- xts(subset(hpc, select = c(ret_sa)), order.by = as.Date(as.yearmon(hpc$YEAR)))
 plot(as.xts(hpcXts), main = "Multiple MA(1) Plots")
+
 ```
 
 **a**
@@ -350,6 +355,7 @@ ff <- cbind(ff, payoffStrat1, payoffStrat2)
 
 plot(ff$payoffStrat1[-1], type = "l")
 lines(ff$payoffStrat2[-1], col = "red")
+legend("bottomleft", c("payoffStrat1","payoffStrat2"), pch=1, col=c('black', 'red'), lty=1, cex=.75)
 ```
 
 
