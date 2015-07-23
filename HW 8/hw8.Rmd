@@ -113,7 +113,7 @@ mapply(myCI, list(p1, p2, p3, p4, p5))
 ```
 
 **g**
-```{r, eval = F}
+```{r, eval = T}
 resAR <- function(ar){
   resid(arima(ar, order = c(1,0,0)))
 }
@@ -134,7 +134,7 @@ ma1<-arima.sim(list(ma=c(.8)),n=200) + 1
 ma2<-arima.sim(list(ma=c(-.8)),n=200)
 ```
 
-```{r, eval = F}
+```{r, eval = T}
 plot(ma1, type = "l", ylim = c(-5,5))
 lines(ma2, col = "red")
 acf(ma1, lag.max=10)
@@ -190,7 +190,7 @@ maCI(0, -.8, ma2[200], predict(ma2))
 ```
 
 **g**
-```{r, eval = F}
+```{r, eval = T}
 acf(ma1, lag.max=12)
 pacf(ma1, lag.max=12)
 acf(ma2, lag.max=12)
@@ -217,18 +217,18 @@ summary(ar1)
 ar4 <- arima(hpc$ret_sa, order = c(4,0,0))
 ```
 
-```{r, eval = F}
+```{r, eval = T}
 acf(hpc$ret_sa)
 pacf(hpc$ret_sa)
 ```
 
-```{r, eval = F}
-e4 <- resid(ar3)
+```{r, eval = T}
+e4 <- resid(ar4)
 acf(e4)
 pacf(e4)
 ```
 
-```{r, eval = F}
+```{r, eval = T}
 e1 <- resid(ar1)
 acf(e1)
 pacf(e1)
@@ -271,7 +271,7 @@ cat("Sample Mean: ", mean(ff$ffo), "Standard Error: ", sd(ff$ffo)/sqrt(length(ff
 
 **b**
 
-```{r}
+```{r,}
 cat("Sample Variance: ", var(ff$ffo))
 ```
 
@@ -282,11 +282,11 @@ acf(ff$ffo)
 pacf(ff$ffo)
 
 ar1 <- arima(ff$ffo, order = c(4,0,0))
-arMa1 <- arima(ff$ffo, order = c(2,0,1))
+arMa1 <- arima(ff$ffo, order = c(1,0,0))
 ```
 
 
-```{r}
+```{r, eval = T}
 summary(ar1)
 summary(arMa1)
 ```
@@ -294,7 +294,7 @@ summary(arMa1)
 
 **d**
 
-```{r, eval = F}
+```{r, eval = T}
 acfPacfResid <- function (model){
   acf(resid(model))
   pacf(resid(model))
@@ -304,7 +304,7 @@ mapply(acfPacfResid, list(ar1,arMa1))
 
 
 **e**
-```{r}
+```{r, eval = T}
 xtsMe <- function(me){
   myXts = xts(x=(ff$ffo - me$residuals), order.by=as.Date(ff$date, "%Y-%m-%d"))
   plot(as.xts(myXts))
@@ -313,10 +313,79 @@ mapply(xtsMe, list(ar1, arMa1))
 ```
 
 
+## Problem 5
+
+**a**
+
+```{r}
+xtsMe <- function(me){
+  myXts = xts(x=me, order.by=as.Date(ff$date, "%Y-%m-%d"))
+  plot(as.xts(myXts))
+}
+
+ff$ar4Pred <- fitted(ar1)
+ff$arMaPred <- fitted(arMa1)
+
+ff$PayoffAr4 <- if (ff$ar4Pred[-1] > ff$Future[-1]) c(NA, ff$ffo[-1] - ff$Future[-1]) else c(NA, ff$Future[-1] - ff$ffo[-1])
+
+ff$PayoffArMa <- if (ff$arMaPred[-1] > ff$Future[-1]) c(NA, ff$ffo[-1] - ff$Future[-1]) else c(NA, ff$Future[-1] - ff$ffo[-1])
+
+mapply(xtsMe, list(ff$PayoffAr4, ff$PayoffArMa))
+```
+
+
+**b**
+```{r}
+kable(head(ff))
+cat("Mean ar4: ", mean(ff$PayoffAr4[-1]), "Sd ar4: ", sd(ff$PayoffAr4[-1]))
+cat("Mean arMa: ", mean(ff$PayoffArMa[-1]), "Sd arMa: ", sd(ff$PayoffArMa[-1]))
+
+```
+
+**c**
+
+```{r}
+cat("Test Stat ar4: ",mean(ff$PayoffAr4[-1])/(sd(ff$PayoffAr4[-1])/sqrt(length(ff$PayoffAr4[-1]))))
+cat("Test Stat arMa: ", mean(ff$PayoffArMa[-1])/(sd(ff$PayoffArMa[-1])/sqrt(length(ff$PayoffArMa[-1]))))
+```
+
+
+**d**
+
+```{r}
+d <- ff$PayoffArMa[-1] - ff$PayoffAr4[-1]
+
+mean(d)/(sd(d)/sqrt(length(d)))
+```
 
 
 
+### Problem 6
 
+**a**
+```{r}
+returns <- read.csv("table.csv")
+returns$DateTime <- as.Date(returns$Date, "%Y-%m-%d")
+returns <- returns[order(returns$DateTime, decreasing=F),]
 
+returns <- returns[complete.cases(returns),]
 
+returns$continuous <- log(returns$Close) - log(returns$Open[1])
 
+plot(returns$continuous, type = "l")
+
+```
+
+**b**
+```{r}
+model <- arima(returns$continuous, order = c(1,0,0))
+acf(resid(model)[2:20])
+pacf(resid(model)[2:20])
+```
+
+**c**
+```{r}
+model <- arima(returns$continuous, order = c(0,0,1))
+acf(resid(model)[2:20])
+pacf(resid(model)[2:20])
+```
