@@ -255,6 +255,66 @@ par1$pred
 
 ### Problem 4
 
+```{r}
+ff <- read.xls("FedFunds.xls")
+ff <- rename(x = ff, c("DATE......"="date", "X.FFO"="ffo"))
+```
+
+
+**a**
+
+```{r}
+ffXts = xts(x=ff$ffo, order.by=as.Date(ff$date, "%Y-%m-%d"))
+plot(as.xts(ffXts))
+cat("Sample Mean: ", mean(ff$ffo), "Standard Error: ", sd(ff$ffo)/sqrt(length(ff$ffo)))
+```
+
+**b**
+
+```{r}
+cat("Sample Variance: ", var(ff$ffo))
+```
+
+**c**
+
+```{r}
+acf(ff$ffo)
+pacf(ff$ffo)
+
+ar1 <- arima(ff$ffo, order = c(4,0,0))
+arMa1 <- arima(ff$ffo, order = c(2,0,1))
+```
+
+
+```{r}
+summary(ar1)
+summary(arMa1)
+```
+
+
+**d**
+
+```{r, eval = F}
+acfPacfResid <- function (model){
+  acf(resid(model))
+  pacf(resid(model))
+}
+mapply(acfPacfResid, list(ar1,arMa1))
+```
+
+
+**e**
+```{r}
+xtsMe <- function(me){
+  myXts = xts(x=(ff$ffo - me$residuals), order.by=as.Date(ff$date, "%Y-%m-%d"))
+  plot(as.xts(myXts))
+}
+mapply(xtsMe, list(ar1, arMa1))
+```
+
+
+
+
 
 
 
