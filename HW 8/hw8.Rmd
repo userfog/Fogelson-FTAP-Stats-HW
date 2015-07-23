@@ -58,7 +58,7 @@ ar2 <- genAR_1(0,.9,200,1)
 ar3 <- genAR_1(0,.1,200,1)
 ar4 <- genAR_1(0,-.5,200,1)
 ar5 <- genAR_1(1,.9,200,1)
-plot(ar1, type = "l", ylim = c(-20,20))
+plot(ar1, type = "l", ylim = c(-20,20), main="Multiple AR(1) Plot")
 lines(ar2, col = rainbow(4, alpha = .5)[1])
 lines(ar3, col = rainbow(4, alpha  = .5)[2])
 lines(ar4, col = rainbow(4, alpha = .5)[3])
@@ -92,7 +92,7 @@ mapply(pr, list(p1, p2, p3, p4, p5))
 ```{r}
 
 oneStep <- function(beta0, beta1, yt){
-  beta0 + beta1*yt + rnorm(1)
+  beta0 + beta1*yt
 }
 
 arimas <- data.frame(beta0 = c(0,0,0,0,1), beta1 = c(0,.9, .1, -.5, .9), yt = c(ar1[200], ar2[200], ar3[200], ar4[200], ar5[200]))
@@ -102,14 +102,20 @@ mapply(oneStep, arimas$beta0, arimas$beta1, arimas$yt)
 
 **f**
 
+Conditional Variance:
+
+$$Var(Y_t|Y_{t-1}) = Var(\beta_0 + \beta_1 Y_{t-1} + \epsilon_{t})$$
++ Because $Y_{t-1}$ is given all terms excpet for $\epsilon_{t}$ are constants therefore there is the covariance term goes to 0 and we are left with:
+$$Var(Y_t|Y_{t-1}) = Var(\beta_0) + Var(\beta_1 Y_{t-1}) + Var(\epsilon_{t})$$
+$$Var(Y_t|Y_{t-1}) = Var(\epsilon_{t})$$
+$$Var(Y_t|Y_{t-1}) = \sigma^2$$
+
 ```{r}
-myCI <- function(p){
-  fcast<-p$pred
-  upper<-p$pred+2*p$se
-  lower<-p$pred-2*p$se
-  return(data.frame(forecast = fcast, upr = upper, lwr = lower))
+myCI <- function (x){
+  list(Upper = x+2, Lower = x-2)
 }
-mapply(myCI, list(p1, p2, p3, p4, p5))
+myPredicts <- mapply(oneStep, arimas$beta0, arimas$beta1, arimas$yt)
+mapply(myCI, myPredicts)
 ```
 
 **g**
@@ -134,14 +140,17 @@ ma1<-arima.sim(list(ma=c(.8)),n=200) + 1
 ma2<-arima.sim(list(ma=c(-.8)),n=200)
 ```
 
-```{r, eval = T}
-plot(ma1, type = "l", ylim = c(-5,5))
+```{r, eval = F}
+# I assume that the first a) and b) on the homework are replicated in later steps, I'll leave the code here incase 
+# they aren't
+plot(ma1, type = "l", ylim = c(-5,5), main = "Multiples Ma(1) Plot")
 lines(ma2, col = "red")
 acf(ma1, lag.max=10)
 pacf(ma1, lag.max=10)
 acf(ma2, lag.max=10)
 pacf(ma2, lag.max=10)
 ```
+
 
 **a**
 
@@ -158,7 +167,7 @@ lines(ma2, col = "red")
 
 **c**
 
-Yes, the series are mean reverting and they revert to their intercept term.
+Yes, each of the plots look the way that I expect because their means are centered around their expected value and their swing is proportional to their $\theta$ value. 
 
 **d**
 ```{r}
@@ -203,7 +212,7 @@ hpc <- read.xls("hpchicago.xls", skip = 1)
 hpc <- subset(hpc, select = c(YEAR, CHXR, ret_raw, CHXR.SA, ret_sa))
 hpc <- hpc[complete.cases(hpc),]
 hpcXts <- xts(subset(hpc, select = c(ret_sa)), order.by = as.Date(as.yearmon(hpc$YEAR)))
-plot(as.xts(hpcXts))
+plot(as.xts(hpcXts), main = "Multiple MA(1) Plots")
 ```
 
 **a**
@@ -217,7 +226,8 @@ summary(ar1)
 ar4 <- arima(hpc$ret_sa, order = c(4,0,0))
 ```
 
-```{r, eval = T}
+```{r, eval = F}
+# Used for testing but not printed here because their are so many plots on this assignment
 acf(hpc$ret_sa)
 pacf(hpc$ret_sa)
 ```
@@ -243,6 +253,8 @@ For this problem, I looked at the acf and pacf plots and compared the auto-corre
 1 - var(resid(ar4)) / var(fitted(ar4) +resid(ar4)) * ((length(fitted(ar4)) - 1) /  (length(fitted(ar4)) - 4 - 1))
 1 - var(resid(ar1)) / var(fitted(ar1) + resid(ar1)) * ((length(fitted(ar4)) - 1) /  (length(fitted(ar4)) - 1 - 1))
 ```
+
+The AR(4) model out performs the AR(1) as measured by $R^2$
 
 **d**
 
@@ -282,7 +294,7 @@ acf(ff$ffo)
 pacf(ff$ffo)
 
 ar1 <- arima(ff$ffo, order = c(4,0,0))
-arMa1 <- arima(ff$ffo, order = c(1,0,0))
+arMa1 <- arima(ff$ffo, order = c(2,0,0))
 ```
 
 
@@ -318,46 +330,55 @@ mapply(xtsMe, list(ar1, arMa1))
 **a**
 
 ```{r}
-xtsMe <- function(me){
-  myXts = xts(x=me, order.by=as.Date(ff$date, "%Y-%m-%d"))
-  plot(as.xts(myXts))
-}
 
 ff$ar4Pred <- fitted(ar1)
 ff$arMaPred <- fitted(arMa1)
 
-ff$PayoffAr4 <- if (ff$ar4Pred[-1] > ff$Future[-1]) c(NA, ff$ffo[-1] - ff$Future[-1]) else c(NA, ff$Future[-1] - ff$ffo[-1])
+payoffSitu1 <- ff$ffo[-1] - ff$Future[-1] 
+payoffSitu2 <- ff$Future[-1] - ff$ffo[-1]
 
-ff$PayoffArMa <- if (ff$arMaPred[-1] > ff$Future[-1]) c(NA, ff$ffo[-1] - ff$Future[-1]) else c(NA, ff$Future[-1] - ff$ffo[-1])
+myDiffSitu1 <- as.numeric(ff$ar4Pred[-1] - ff$Future[-1] > 0)
+myDiffSitu2 <- as.numeric(ff$ar4Pred[-1] - ff$Future[-1] <= 0)
 
-mapply(xtsMe, list(ff$PayoffAr4, ff$PayoffArMa))
+myDiffSitu12 <- as.numeric(ff$arMaPred[-1] - ff$Future[-1] > 0)
+myDiffSitu22 <- as.numeric(ff$arMaPred[-1] - ff$Future[-1] <= 0)
+
+payoffStrat1 <- c(NA, myDiffSitu1 * payoffSitu1 + myDiffSitu2 * payoffSitu2)
+payoffStrat2 <- c(NA, myDiffSitu12 * payoffSitu1 + myDiffSitu22 * payoffSitu2)
+
+ff <- cbind(ff, payoffStrat1, payoffStrat2)
+
+plot(ff$payoffStrat1[-1], type = "l")
+lines(ff$payoffStrat2[-1], col = "red")
 ```
 
 
 **b**
 ```{r}
 kable(head(ff))
-cat("Mean ar4: ", mean(ff$PayoffAr4[-1]), "Sd ar4: ", sd(ff$PayoffAr4[-1]))
-cat("Mean arMa: ", mean(ff$PayoffArMa[-1]), "Sd arMa: ", sd(ff$PayoffArMa[-1]))
+cat("Mean ar4: ", mean(ff$payoffStrat1[-1]), "Sd ar4: ", sd(ff$payoffStrat1[-1]))
+cat("Mean arMa: ", mean(ff$payoffStrat2[-1]), "Sd arMa: ", sd(ff$payoffStrat2[-1]))
 
 ```
 
 **c**
 
 ```{r}
-cat("Test Stat ar4: ",mean(ff$PayoffAr4[-1])/(sd(ff$PayoffAr4[-1])/sqrt(length(ff$PayoffAr4[-1]))))
-cat("Test Stat arMa: ", mean(ff$PayoffArMa[-1])/(sd(ff$PayoffArMa[-1])/sqrt(length(ff$PayoffArMa[-1]))))
+cat("Test Stat ar4: ",mean(ff$payoffStrat1[-1])/(sd(ff$payoffStrat1[-1])/sqrt(length(ff$payoffStrat1[-1]))))
+cat("Test Stat arMa: ", mean(ff$payoffStrat2[-1])/(sd(ff$payoffStrat2[-1])/sqrt(length(ff$payoffStrat2[-1]))))
 ```
 
+For both of these strategies, I reject the null hypothesis that their returns could be random. (Yay, profit!)
 
 **d**
 
 ```{r}
-d <- ff$PayoffArMa[-1] - ff$PayoffAr4[-1]
+d <- ff$payoffStrat1[-1] - ff$payoffStrat2[-1]
 
 mean(d)/(sd(d)/sqrt(length(d)))
 ```
 
+I fail to reject the null that the average returns for the two models are the null.
 
 
 ### Problem 6
@@ -383,9 +404,13 @@ acf(resid(model)[2:20])
 pacf(resid(model)[2:20])
 ```
 
+Based on this AR model, after controlling for the t-1 change, almost all of the subestquent residuals are uncorrellated. Therefore, the AR(1) fit works well.
+
 **c**
 ```{r}
 model <- arima(returns$continuous, order = c(0,0,1))
 acf(resid(model)[2:20])
 pacf(resid(model)[2:20])
 ```
+
+Based on the acf of this model, we see that our errors may be highly correlated if we use and MA(1) model and therefore, we should reconsider.
