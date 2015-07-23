@@ -140,3 +140,14 @@ logSqFt <- lm(Rent ~ Bathrooms + Yr + logSqFt100 + Ac + Parking + Rooms, rentAll
 
 summary(logSqFt)
 ```
+
+# In Class
+```{r}
+rentb <- read.xls(xls = "rent100b.xls")
+rentb <- rename(rentb, c("Year.Built"="Yr", "Sq.Feet..in.100s."="sqft100", "Air.Conditioning"="Ac"))
+rentb$logSqFt100 <- log(rentb$sqft100)
+KitchLogPred <- predict(logSqFt,rentb,intreval = "none")
+JeffPred <- predict(lm.out,rentb,intreval = "none")
+print(sqrt(mean((rentb$Rent-KitchLogPred)^2)))
+print(sqrt(mean((rentb$Rent-JeffPred)^2)))
+```
