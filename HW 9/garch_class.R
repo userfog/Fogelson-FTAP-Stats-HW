@@ -74,7 +74,7 @@ points(date,garchvol,type="l",col="green")
 #predict garch
 forecast<-predict(garch.model,n.ahead=500)
 ts.plot(forecast$standardDeviation,type="l")
- forecast<-predict(garch.model,n.ahead=1)
+forecast<-predict(garch.model,n.ahead=1)
 forecast
 cc<-qnorm(.010,0,1)
 cc

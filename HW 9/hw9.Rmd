@@ -18,6 +18,7 @@ library(knitr)
 library(ggplot2)
 library(forecast)
 require(plotrix)
+require(fGarch)
 ```
 
 
@@ -30,6 +31,11 @@ sp500 <- read.csv("table.csv")
 sp500$DateTime <- as.Date(sp500$Date, "%Y-%m-%d")
 sp500 <- sp500[order(sp500$DateTime, decreasing=F),]
 sp500 <- sp500[complete.cases(sp500),]
+
+hp <- read.csv("table (1).csv")
+hp$DateTime <- as.Date(hp$Date, "%Y-%m-%d")
+hp <- hp[order(hp$DateTime, decreasing=F),]
+hp <- hp[complete.cases(hp),]
 ```
 
 
@@ -161,4 +167,115 @@ plot(sp500$DateTime,ma,type="l",col="red")
 ```
 
 
+### Problem 5
 
+**a, b, c**
+
+```{r}
+smoother <- function(lambda){
+  rmvar <- matrix(0,nrow=length(ar),ncol=1)
+  rmvar[1,1] <- var(ar)
+  for (i in 2:length(rmvar)){
+    rmvar[i,1] <- (lambda*rmvar[i-1,1])+((01-lambda)*ar[i-1]^2)
+  }
+  sqrt(rmvar)
+}
+
+plot(smoother(.95), type = "l")
+lines(smoother(.8), col = "red")
+lines(smoother(.8), col = "green")
+
+```
+
+### Problem 6
+
+**a**
+
+```{r}
+myGarch <- function(r, h){
+  .00045 + .04*r + .94*h
+}
+myGarch(.04, .03)
+```
+
+**b**
+
+```{r}
+myGarch(.01, .03)
+```
+
+**c**
+
+![Unconditional Variance](./garUncond.png)
+
+```{r}
+.00045/(1-.04-.94)
+```
+
+
+### Problem 7
+
+**a**
+
+```{r}
+a1 <- garchFit(~garch(1,0),data=dailyReturns, trace = F)
+-1*a1@fit$llh
+```
+
+**b**
+
+```{r}
+a9 <- garchFit(~garch(9,0),data=dailyReturns, trace = F)
+-1*a9@fit$llh
+```
+
+
+**c**
+
+```{r}
+g11 <- garchFit(~garch(1,1),data=dailyReturns, trace = F)
+-1*g11@fit$llh
+```
+
+**d**
+```{r}
+g22 <- garchFit(~garch(2,2),data=dailyReturns, trace = F)
+-1*g22@fit$llh
+```
+
+**e**
+Based on the log likelihood values, my garch22 is performing the best.
+
+### Problem 8
+
+
+**a**
+```{r}
+dailyVar <- volatility(g22)^2
+```
+
+**b**
+```{r}
+
+```
+
+### Problem 9
+
+**a**
+```{r}
+diffHp<- diff(hp$Adj.Close) / hp$Adj.Close[1:length(hp$Adj.Close)-1]
+diffSp <- diff(sp500$Adj.Close) / sp500$Adj.Close[1:length(sp500$Adj.Close)-1]
+skewness(diffHp)
+kurtosis(diffHp)
+skewness(diffSp)
+kurtosis(diffSp)
+acf(diffHp^2)
+acf(diffSp^2)
+```
+
+**b**
+```{r}
+hpGarch <- garchFit(~garch(1,1),data=diffHp)
+summary(hpGarch)
+
+```
