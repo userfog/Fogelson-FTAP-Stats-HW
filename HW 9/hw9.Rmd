@@ -276,6 +276,75 @@ acf(diffSp^2)
 **b**
 ```{r}
 hpGarch <- garchFit(~garch(1,1),data=diffHp)
+# plot(hpGarch@fit$series)
 summary(hpGarch)
-
+volHp <- sqrt(252)*volatility(hpGarch)
+plot(volHp, type = "l")
 ```
+
+```{r}
+spGarch <- garchFit(~garch(1,1),data=diffSp)
+# plot(hpGarch@fit$series)
+summary(spGarch)
+volSp <- sqrt(252)*volatility(spGarch)
+plot(volSp, type = "l")
+```
+
+The annualized volatility of the S&P500 appears to have less volatility over all but there is one voltile day that exceeds all of the volatility of HP.
+
+**c**
+
+```{r}
+as.numeric(spGarch@fit$coef[2])/(1-as.numeric(spGarch@fit$coef[3])-as.numeric(spGarch@fit$coef[4]))
+var(diffSp)
+
+as.numeric(hpGarch@fit$coef[2])/(1-as.numeric(hpGarch@fit$coef[3])-as.numeric(hpGarch@fit$coef[4]))
+var(diffHp)
+```
+
+The values are extremely close!
+
+**d**
+
+```{r}
+standardHP <- diffHp / sqrt(hpGarch@fitted)
+standardSP <- diffSp / sqrt(spGarch@fitted)
+
+hist(standardHP, breaks = 30)
+skewness(standardHP)
+kurtosis(standardHP)
+
+hist(standardSP, breaks = 30)
+skewness(standardSP)
+kurtosis(standardSP)
+```
+
+My histogram looks normal but the kortousis is far in excess of normal. 
+
+**e**
+
+Based on the statistics, the the tails are much fatter than a normal distrobution so you would fail to predict outliers.
+
+**f**
+```{r}
+hpForecast<-predict(hpGarch,n.ahead=250)
+ts.plot(hpForecast$standardDeviation,type="l")
+
+spForecast<-predict(spGarch,n.ahead=250)
+ts.plot(spForecast$standardDeviation,type="l")
+```
+
+
+**g**
+```{r}
+mean(hpForecast$standardDeviation)
+mean(spForecast$standardDeviation)
+```
+
+**h**
+```{r}
+acf((standardSP)^2)
+acf((standardHP)^2)
+```
+
+
