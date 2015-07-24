@@ -2,7 +2,7 @@
 title: "FTAP Homework 9"
 author: "Zachary Fogelson"
 date: "July 23, 2015"
-output: html_document
+output: pdf_document
 ---
 
 
@@ -25,6 +25,9 @@ require(fGarch)
 **Reading**
 ```{r}
 gdp <- read.xls("gdp.xls", skip = 17)
+
+gdpGrowth <- 
+
 tb <- read.csv("tbill.csv")
 
 sp500 <- read.csv("table.csv")
@@ -36,6 +39,9 @@ hp <- read.csv("table (1).csv")
 hp$DateTime <- as.Date(hp$Date, "%Y-%m-%d")
 hp <- hp[order(hp$DateTime, decreasing=F),]
 hp <- hp[complete.cases(hp),]
+
+spRet <- diff(log(sp500$Adj.Close))
+hpRet <- diff(log(hp$Adj.Close))
 ```
 
 
@@ -56,52 +62,39 @@ summary(ar)
 **a**
 ```{r}
 p<-predict(ar,n.ahead=15)
-kable(p)
+kable(head(data.frame(Predictions = c(p$pred))))
 ```
 
 
 **b**
 As we predict further out, our prediction for our errors changes over time:
 
-![Standard Error of Estimate Over Time](./varSlide.png)
+```{r fig.width=5, fig.height=3,echo=FALSE}
+library(png)
+library(grid)
+img <- readPNG("./varSlide.png")
+ grid.raster(img)
+```
 
 ```{r}
-seMe <- var(ar$residuals) / length(ar$residuals)
-beta1 <- as.numeric(ar$coef[1])
-
-errVarMe <- function(k){
-  (1 - beta1^(2*k)) / (1- beta1^2) * seMe
-}
-
-mapply(errVarMe, c(1:15))
+p<-predict(ar,n.ahead=15)
+kable(head(data.frame(Variance = c(p$se^2))))
 ```
 
 
 **c**
 
-```{r}
-arMu <- as.numeric(ar$coef[2]) / (1-as.numeric(ar$coef[1]))
-
-ciMe <- function(sig){
-  data.frame(Upper = 2*abs(sig), Lower = 2*abs(sig))
-}
-
-
-intervals <- data.frame(t(mapply(ciMe, p$se)))
-intervals <- cbind(intervals, data.frame(Point = p$pred))
-intervals$Upper <- as.numeric(as.numeric(intervals$Upper) + intervals$Point)
-intervals$Lower <- as.numeric(as.numeric(intervals$Lower) + intervals$Point)
-plot(x = index(intervals$Point), y = intervals$Point, ylim = c(-1,1))
-lines(x = index(intervals$Point), y = intervals$Lower, col = "green")
-lines(x = index(intervals$Point), y = intervals$Upper, col = "green")
+```{r, fig.height=6}
+plot(p$pred, ylim = c(-.02,.12))
+lines(p$pred + 2 * p$se, col = "green")
+lines(p$pred - 2 * p$se, col = "green")
 ```
 
 
 
 ### Problem 2
 
-```{r}
-plot.ts(gdp$VALUE)
+```{r, fig.height = 6}
 plot.ts(log(gdp$VALUE))
 ```
 
@@ -112,24 +105,22 @@ mean(grwRate)
 ```
 
 ```{r}
-rwfPred <- rwf(grwRate, h=4, drift=T, level=c(80,95), fan=FALSE, lambda=NULL)
+rwfPred <- rwf(log(gdp$VALUE), h=4, drift=T, level=c(80,95), fan=FALSE, lambda=NULL)
+rwfPred$model$drift
 ```
 
 ```{r}
-as.numeric(rwfPred$upper[,2])
-as.numeric(rwfPred$lower[,2])
+kable(head(data.frame(Upper = c(as.numeric(exp(rwfPred$upper[,2]))))))
+kable(head(data.frame(Upper = c(as.numeric(exp(rwfPred$lower[,2]))))))
 ```
 
 
 ### Problem 3
 
-```{r}
-
-```
-
 **a**
 ```{r}
-dailyReturns <- abs(sp500$Open - sp500$Close)
+spRet <- diff(log(sp500$Adj.Close))  # This should have already been defined but R doesn't think so
+dailyReturns <- spRet
 plot.ts(dailyReturns)
 ```
 
@@ -143,7 +134,7 @@ Because the auto-correlations are consistently higher than the critical value, w
 
 **c**
 ```{r}
-kurtosis(sp500$Open - sp500$Close)[1]
+kurtosis(dailyReturns)[1]
 ```
 
 R returns the excess Kurtosis over and above a normal distrobution. Therefore, we can see that the returns have MUCH fatter tails than a normal distrobution would suggest.
@@ -157,13 +148,13 @@ R returns the excess Kurtosis over and above a normal distrobution. Therefore, w
 r2=252*dailyReturns*dailyReturns
 ar=sqrt(252)*r2
 ma <- sqrt(filter(r2,rep(1/100,100), sides=1))
-plot(sp500$DateTime,ma,type="l",col="red")
+plot(ma,type="l",col="red")
 ```
 
 **b**
 ```{r}
 ma <- sqrt(filter(r2,rep(1/252,252), sides=1))
-plot(sp500$DateTime,ma,type="l",col="red")
+plot(ma,type="l",col="red")
 ```
 
 
@@ -171,7 +162,7 @@ plot(sp500$DateTime,ma,type="l",col="red")
 
 **a, b, c**
 
-```{r}
+```{r, fig.height=7}
 smoother <- function(lambda){
   rmvar <- matrix(0,nrow=length(ar),ncol=1)
   rmvar[1,1] <- var(ar)
@@ -181,10 +172,7 @@ smoother <- function(lambda){
   sqrt(rmvar)
 }
 
-plot(smoother(.95), type = "l")
-lines(smoother(.8), col = "red")
-lines(smoother(.8), col = "green")
-
+plot.ts(data.frame(".95" = c(smoother(.95)), ".80" = c(smoother(.8)), ".1" = c(smoother(.1))), main = "Smoother Comparison")
 ```
 
 ### Problem 6
@@ -193,7 +181,7 @@ lines(smoother(.8), col = "green")
 
 ```{r}
 myGarch <- function(r, h){
-  .00045 + .04*r + .94*h
+  .00045 + .04^2*r^2 + .94*h
 }
 myGarch(.04, .03)
 ```
@@ -256,15 +244,24 @@ dailyVar <- volatility(g22)^2
 
 **b**
 ```{r}
+interval <- data.frame(Upper <- c(sqrt(g22@h.t)*2), Lower <- c(-sqrt(g22@h.t)*2))
 
+100 * (sum(as.numeric(sp500$Adj.Close[-1] < interval$Upper & sp500$Adj.Close[-1]) > interval$Lower)/length(sp500$Adj.Close))
+```
+
+**c**
+```{r}
+plot.ts(spRet)
+lines(interval$Upper, col = "red")
+lines(interval$Lower, col = "red")
 ```
 
 ### Problem 9
 
 **a**
 ```{r}
-diffHp<- diff(hp$Adj.Close) / hp$Adj.Close[1:length(hp$Adj.Close)-1]
-diffSp <- diff(sp500$Adj.Close) / sp500$Adj.Close[1:length(sp500$Adj.Close)-1]
+diffHp<- hpRet
+diffSp <- spRet
 skewness(diffHp)
 kurtosis(diffHp)
 skewness(diffSp)
@@ -275,19 +272,18 @@ acf(diffSp^2)
 
 **b**
 ```{r}
-hpGarch <- garchFit(~garch(1,1),data=diffHp)
-# plot(hpGarch@fit$series)
+hpGarch <- garchFit(~garch(1,1),data=diffHp, trace = F)
 summary(hpGarch)
 volHp <- sqrt(252)*volatility(hpGarch)
-plot(volHp, type = "l")
 ```
 
-```{r}
-spGarch <- garchFit(~garch(1,1),data=diffSp)
-# plot(hpGarch@fit$series)
+```{r, fig.height=6}
+spGarch <- garchFit(~garch(1,1),data=diffSp, trace = F)
 summary(spGarch)
 volSp <- sqrt(252)*volatility(spGarch)
 plot(volSp, type = "l")
+lines(volHp, col = "red")
+legend("topleft", c("SP500","HP"), pch=1, col=c('black', 'red'), lty=1, cex=.75)
 ```
 
 The annualized volatility of the S&P500 appears to have less volatility over all but there is one voltile day that exceeds all of the volatility of HP.
@@ -306,14 +302,16 @@ The values are extremely close!
 
 **d**
 
-```{r}
+```{r, fig.height=6}
 standardHP <- residuals(hpGarch, standardize = T)
 standardSP <- residuals(spGarch, standardize = T)
 
 hist(standardHP, breaks = 30)
 skewness(standardHP)
 kurtosis(standardHP)
+```
 
+```{r, fig.height=6}
 hist(standardSP, breaks = 30)
 skewness(standardSP)
 kurtosis(standardSP)
@@ -337,8 +335,8 @@ ts.plot(spForecast$meanError,type="l")
 
 **g**
 ```{r}
-mean(hpForecast$standardDeviation)
-mean(spForecast$standardDeviation)
+mean(hpForecast$standardDeviation^2)
+mean(spForecast$standardDeviation^2)
 ```
 
 **h**
@@ -374,50 +372,58 @@ $$\lambda = \frac{\mu_{sp} - r_f}{w \sigma_{sp}^2}$$
 Therefore, if $\lambda = 5$:
 
 $$5 = \frac{\mu_{sp} - r_f}{w \sigma_{sp}^2}$$
-$$w = \frac{5 \sigma_{sp}^2}{\mu_{sp} - r_f}$$
+$$w = \frac{\mu_{sp} - r_f}{5 \sigma_{sp}^2}$$
 
 
 **c**
 ```{r, eval = F}
 mean(diffSp)
 var(diffSp)
+
+w <- (mean(diffSp) - (.02/252) )/ (5 * var(diffSp))
+print(w)
 ```
 
 
-$\mu_{sp} =  `r mean(sp500$Ad)`$
+$\mu_{sp} =  `r mean(diffSp)`$
 
 $\sigma_{sp}^2 = `r var(diffSp)`$
 
 $r_f =  `r .02/252`$
 
 
-$$ w = \frac{5 * `r var(diffSp)`}{`r mean(diffSp)` - `r .02/252`} = `r (5 * var(diffSp))/(mean(diffSp) - .02/252)`$$
-
-
 **d**
 
-$U(w)=`r ((5 * var(diffSp)) / (mean(diffSp) - .02/252)) * mean(diffSp) - (1-((5 * var(diffSp))/(mean(diffSp) - .02/252)*.02/252)) - 5/2*((5 * var(diffSp))/(mean(diffSp) - .02/252)^2*var(diffSp))`$
+```{r}
+w <- (mean(diffSp) - (.02/252) )/ (5 * var(diffSp))
+U <- (w * mean(diffSp) - (1-w)*.02/252) - 5/2*(w)
+U
+```
 
 
 ### Problem 11
 
 **a**
 ```{r}
-w <- ((5 * var(diffSp)) / (mean(diffSp) - .02/252)) * mean(diffSp) - (1-((5 * var(diffSp))/(mean(diffSp) - .02/252)*.02/252)) - 5/2*((5 * var(diffSp))/(mean(diffSp) - .02/252)^2*var(diffSp))
+w <- (mean(diffSp) - (.02/252) )/ (5 * var(diffSp))
 
 utility <- function(h){
   w*mean(diffSp) + (1-w)*.02/252 - 5/2 * (w^2*h)
 }
 
 weight <- function(h){
-  (mean(diffSp) - .02/252) / 5 * h
+  (mean(diffSp) - .02/252) / (5 * h)
 }
 
-garch.model <- garchFit(~garch(2,2),data=diffSp)
+garch.model <- garchFit(~garch(2,2),data=diffSp,trace = F)
 weights <-mapply(weight, as.numeric(garch.model@h.t))
 
-plot(garch.model@fitted, weights)
+plot(garch.model@h.t, weights)
 ```
+
+
+Yes, this makes sense because volatility is associated with negative periods of return in the market.
+
 
 **b**
 ```{r}
@@ -432,7 +438,7 @@ plot(returns, type = "l")
 **c**
 ```{r}
 meanRet <- mean(returns)
-weightedVar <- 5/2 * var(returns)
+weightedVar <- 5/2 * sum(returns)
 
 meanRet - weightedVar
 ```
@@ -445,5 +451,8 @@ sd(us)/sqrt(length(us))
 
 **e**
 ```{r}
-print(meanRet - -5.1119924 / (sd(us)/sqrt(length(us))))
+uBar <- mean(returns) - 5/2*sum((returns - meanRet)^2) 
+print((uBar - U) / (sd(us)/sqrt(length(us))))
 ```
+
+I am clearly rejecting the null, at the moment, (however, due to the lateness) I am going to claim this is a implementation error and with more sleep, I would have written better R.
