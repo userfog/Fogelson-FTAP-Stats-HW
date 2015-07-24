@@ -43,7 +43,7 @@ points(date,expsmooth,type="l",col="blue")
 
 #GARCH
 
-garch.model <- garchFit(~garch(2,2),data=ar)
+
 summary(garch.model)
 garchvol<-volatility(garch.model)
 garchres<-residuals(garch.model)

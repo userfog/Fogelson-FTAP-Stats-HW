@@ -307,8 +307,8 @@ The values are extremely close!
 **d**
 
 ```{r}
-standardHP <- diffHp / sqrt(hpGarch@fitted)
-standardSP <- diffSp / sqrt(spGarch@fitted)
+standardHP <- residuals(hpGarch, standardize = T)
+standardSP <- residuals(spGarch, standardize = T)
 
 hist(standardHP, breaks = 30)
 skewness(standardHP)
@@ -328,10 +328,10 @@ Based on the statistics, the the tails are much fatter than a normal distrobutio
 **f**
 ```{r}
 hpForecast<-predict(hpGarch,n.ahead=250)
-ts.plot(hpForecast$standardDeviation,type="l")
+ts.plot(hpForecast$meanError,type="l")
 
 spForecast<-predict(spGarch,n.ahead=250)
-ts.plot(spForecast$standardDeviation,type="l")
+ts.plot(spForecast$meanError,type="l")
 ```
 
 
@@ -348,3 +348,102 @@ acf((standardHP)^2)
 ```
 
 
+### Problem 10
+
+**a**
+
+The mean of the profile should be the expectation of the linear combination of the weighted portfolio:
+$$\mu_w = w * \mu_{sp} + (1 - w)*r_f$$
+
+The variance of the profile should be the variance of the linear combination of the weighted portfolio:
+$$\sigma^2 = w^2 * \sigma_{sp}^2 + (1 - w)^2*\sigma^2_{r_f}$$
+
+By definition, the variance of the risk free rate is 0:
+
+$$\sigma^2 = w^2 * \sigma_{sp}^2$$
+
+**b**
+
+$$U(w) = (w * \mu_{sp} + (1 - w)*r_f) - \frac{\lambda}{2}(w^2 * \sigma_{sp}^2)$$
+
+
+Maximize by setting the derivative to 0:
+$$\frac{dU}{dw} = \mu_{sp} - r_f - \lambda w \sigma_{sp}^2 = 0$$
+$$\lambda = \frac{\mu_{sp} - r_f}{w \sigma_{sp}^2}$$
+
+Therefore, if $\lambda = 5$:
+
+$$5 = \frac{\mu_{sp} - r_f}{w \sigma_{sp}^2}$$
+$$w = \frac{5 \sigma_{sp}^2}{\mu_{sp} - r_f}$$
+
+
+**c**
+```{r, eval = F}
+mean(diffSp)
+var(diffSp)
+```
+
+
+$\mu_{sp} =  `r mean(sp500$Ad)`$
+
+$\sigma_{sp}^2 = `r var(diffSp)`$
+
+$r_f =  `r .02/252`$
+
+
+$$ w = \frac{5 * `r var(diffSp)`}{`r mean(diffSp)` - `r .02/252`} = `r (5 * var(diffSp))/(mean(diffSp) - .02/252)`$$
+
+
+**d**
+
+$U(w)=`r ((5 * var(diffSp)) / (mean(diffSp) - .02/252)) * mean(diffSp) - (1-((5 * var(diffSp))/(mean(diffSp) - .02/252)*.02/252)) - 5/2*((5 * var(diffSp))/(mean(diffSp) - .02/252)^2*var(diffSp))`$
+
+
+### Problem 11
+
+**a**
+```{r}
+w <- ((5 * var(diffSp)) / (mean(diffSp) - .02/252)) * mean(diffSp) - (1-((5 * var(diffSp))/(mean(diffSp) - .02/252)*.02/252)) - 5/2*((5 * var(diffSp))/(mean(diffSp) - .02/252)^2*var(diffSp))
+
+utility <- function(h){
+  w*mean(diffSp) + (1-w)*.02/252 - 5/2 * (w^2*h)
+}
+
+weight <- function(h){
+  (mean(diffSp) - .02/252) / 5 * h
+}
+
+garch.model <- garchFit(~garch(2,2),data=diffSp)
+weights <-mapply(weight, as.numeric(garch.model@h.t))
+
+plot(garch.model@fitted, weights)
+```
+
+**b**
+```{r}
+realized <- function(weight){
+  weight * mean(diffSp) - (1 - weight)*(.02/252)
+}
+returns <- mapply(realized, weights)
+
+plot(returns, type = "l")
+```
+
+**c**
+```{r}
+meanRet <- mean(returns)
+weightedVar <- 5/2 * var(returns)
+
+meanRet - weightedVar
+```
+
+**d**
+```{r}
+us <- returns - 5/2*(returns - meanRet) 
+sd(us)/sqrt(length(us))
+```
+
+**e**
+```{r}
+print(meanRet - -5.1119924 / (sd(us)/sqrt(length(us))))
+```
