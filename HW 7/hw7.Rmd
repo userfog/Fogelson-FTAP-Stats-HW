@@ -24,7 +24,6 @@ library(stargazer)
 ```{r}
 train <- read.csv("train.csv")
 trainMeaningFull <-subset(train, select=-c(id, member_id))
-trainMeaningFull <- trainMeaningFull[complete.cases(trainMeaningFull),]
 ```
 
 ```{r, results = "asis"}
