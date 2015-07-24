@@ -439,13 +439,13 @@ skewness(diffHp)</code></pre>
 ## alpha1 -2.315364e+03 -5.184568e+09 -2.426025e+06    -2653643.4
 ## beta1  -1.111699e+05 -6.574813e+09 -2.653643e+06    -3138078.0
 ## attr(,&quot;time&quot;)
-## Time difference of 0.09914422 secs
+## Time difference of 0.135391 secs
 ## 
 ## --- END OF TRACE ---
 ## 
 ## 
 ## Time to Estimate Parameters:
-##  Time difference of 0.5621588 secs</code></pre>
+##  Time difference of 0.678339 secs</code></pre>
 <pre class="r"><code># plot(hpGarch@fit$series)
 summary(hpGarch)</code></pre>
 <pre><code>## 
@@ -457,7 +457,7 @@ summary(hpGarch)</code></pre>
 ## 
 ## Mean and Variance Equation:
 ##  data ~ garch(1, 1)
-## &lt;environment: 0x7fd3448fc038&gt;
+## &lt;environment: 0x7fdf46eeb988&gt;
 ##  [data = diffHp]
 ## 
 ## Conditional Distribution:
@@ -483,7 +483,7 @@ summary(hpGarch)</code></pre>
 ##  11824.29    normalized:  2.34842 
 ## 
 ## Description:
-##  Fri Jul 24 01:05:38 2015 by user:  
+##  Fri Jul 24 01:11:14 2015 by user:  
 ## 
 ## 
 ## Standardised Residuals Tests:
@@ -591,13 +591,13 @@ plot(volHp, type = &quot;l&quot;)</code></pre>
 ## alpha1     16215.16 -2.244407e+09 -1.794897e+05 -2.066775e+05
 ## beta1     -41196.96 -3.155022e+09 -2.066775e+05 -2.640336e+05
 ## attr(,&quot;time&quot;)
-## Time difference of 0.101711 secs
+## Time difference of 0.113919 secs
 ## 
 ## --- END OF TRACE ---
 ## 
 ## 
 ## Time to Estimate Parameters:
-##  Time difference of 0.5248449 secs</code></pre>
+##  Time difference of 0.5765941 secs</code></pre>
 <pre class="r"><code># plot(hpGarch@fit$series)
 summary(spGarch)</code></pre>
 <pre><code>## 
@@ -609,7 +609,7 @@ summary(spGarch)</code></pre>
 ## 
 ## Mean and Variance Equation:
 ##  data ~ garch(1, 1)
-## &lt;environment: 0x7fd3455d6e00&gt;
+## &lt;environment: 0x7fdf4813acb0&gt;
 ##  [data = diffSp]
 ## 
 ## Conditional Distribution:
@@ -635,7 +635,7 @@ summary(spGarch)</code></pre>
 ##  16056.66    normalized:  3.189642 
 ## 
 ## Description:
-##  Fri Jul 24 01:05:39 2015 by user:  
+##  Fri Jul 24 01:11:16 2015 by user:  
 ## 
 ## 
 ## Standardised Residuals Tests:
@@ -856,13 +856,13 @@ garch.model &lt;- garchFit(~garch(2,2),data=diffSp)</code></pre>
 ## beta1  -8.734808e+04 -8.834063e+04
 ## beta2  -8.834063e+04 -8.945664e+04
 ## attr(,&quot;time&quot;)
-## Time difference of 0.2572479 secs
+## Time difference of 0.261559 secs
 ## 
 ## --- END OF TRACE ---
 ## 
 ## 
 ## Time to Estimate Parameters:
-##  Time difference of 0.8807909 secs</code></pre>
+##  Time difference of 0.9216771 secs</code></pre>
 <pre class="r"><code>weights &lt;-mapply(weight, as.numeric(garch.model@h.t))
 
 plot(garch.model@fitted, weights)</code></pre>
