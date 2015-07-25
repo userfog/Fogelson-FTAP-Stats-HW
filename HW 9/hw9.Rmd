@@ -438,7 +438,7 @@ plot(returns, type = "l")
 **c**
 ```{r}
 meanRet <- mean(returns)
-weightedVar <- 5/2 * sum(returns)
+weightedVar <- 5/2 * mean((returns - meanRet)^2)
 
 meanRet - weightedVar
 ```
