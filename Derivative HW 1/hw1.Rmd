@@ -2,7 +2,7 @@
 title: "Derivatives Homework 1"
 author: "Zachary Fogelson"
 date: "July 27, 2015"
-output: html_document
+output: pdf_document
 ---
 
 ```{r, include = F}
