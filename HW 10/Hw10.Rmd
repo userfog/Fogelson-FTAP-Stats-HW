@@ -2,7 +2,7 @@
 title: "FTAP Homework 10"
 author: "Zachary Fogelson"
 date: "July 25, 2015"
-output: pdf_document
+output: html_document
 ---
 
 ```{r, include = F}
@@ -90,7 +90,7 @@ cov <- beta.bestBuy*beta.homeDepot*vol^2
 denom.bestBuy <- beta.bestBuy^2*vol^2+mean(residuals(lm.bestBuy)^2)
 denom.homeDepot <- beta.homeDepot^2*vol^2+mean(residuals(lm.homeDepot)^2)
 
-corr=cov/sqrt(denom.bestBuy*denom.homeDepot)
+corr <- cov/sqrt(denom.bestBuy*denom.homeDepot)
 ```
 
 ***d***
@@ -101,9 +101,10 @@ plot(bestBuy$DateTime,corr,type="l", col="blue")
 ***e***
 ```{r}
 forecast <- predict(garch,n.ahead=1)
-oneDayVar <- .3^2*(beta.bestBuy^2*forecast$standardDeviation^2 +  var(lm.bestBuy$residuals)) 
-  + .7^2*(beta.homeDepot^2*forecast$standardDeviation^2 + var(lm.homeDepot$residuals)) + 2 *   
-  cov[length(bestBuy$excessReturn)]*.3*.7
+oneDayVar <- .3^2*(beta.bestBuy^2*forecast$standardDeviation^2 +  var(lm.bestBuy$residuals)) + 
+  .7^2*(beta.homeDepot^2*forecast$standardDeviation^2 + var(lm.homeDepot$residuals)) + 2 *   
+  (.3*.7 * beta.homeDepot * beta.bestBuy * var(garch@residuals) + var(lm.homeDepot$residuals) + 
+  var(lm.bestBuy$residuals))
 oneDayVar
 ```
 
@@ -241,10 +242,24 @@ $$\frac{d^2\mathcal{L}}{d^2\omega} = \Sigma_2^N(\frac{1}{(\omega + \alpha * x_{i
 
 $$\frac{d^2\mathcal{L}}{d\omega d\alpha} = \Sigma_2^N(\frac{1}{U^2}*\frac{dU}{d\alpha} - 2* \frac{x_{i-1}}{(U)^3}*\frac{dU}{d\alpha})$$
 
-$$\frac{d^2\mathcal{L}}{d\omega d\alpha} = \Sigma_2^N(\frac{x_{i_1}}{(\omega + \alpha * x_{i-1})^2} - 2* \frac{x_{i-1}^2}{(\omega + \alpha * x_{i-1})^3})$$
+$$\frac{d^2\mathcal{L}}{d\omega d\alpha} = \Sigma_2^N(\frac{x_{i-1}}{(\omega + \alpha * x_{i-1})^2} - 2* \frac{x_{i-1}^2}{(\omega + \alpha * x_{i-1})^3})$$
 
-$$ \left( \begin{smallmatrix}
+$$I =  \left( \begin{smallmatrix}
 \Sigma_2^N(\frac{x_{i-1}^2}{(\omega + \alpha * x_{i-1})^2} - 2 *\frac{x_{i-1}^3}{(\omega + \alpha * x_{i-1})^3}) & \Sigma_2^N(\frac{x_{i-1}}{(\omega + \alpha * x_{i-1})^2} - 2 *\frac{x_{i-1}^2}{(\omega + \alpha * x_{i-1})^3}) \\
-\Sigma_2^N(\frac{x_{i_1}}{(\omega + \alpha * x_{i-1})^2} - 2* \frac{x_{i-1}^2}{(\omega + \alpha * x_{i-1})^3}) & \Sigma_2^N(\frac{1}{(\omega + \alpha * x_{i-1})^2} - 2* \frac{x_{i-1}}{(\omega + \alpha * x_{i-1})^3})
-\end{smallmatrix} \right)$$
+\Sigma_2^N(\frac{x_{i-1}}{(\omega + \alpha * x_{i-1})^2} - 2* \frac{x_{i-1}^2}{(\omega + \alpha * x_{i-1})^3}) & \Sigma_2^N(\frac{1}{(\omega + \alpha * x_{i-1})^2} - 2* \frac{x_{i-1}}{(\omega + \alpha * x_{i-1})^3})
+\end{smallmatrix} \right) \mid \omega = \hat{\omega}, \alpha = \hat{\alpha}$$
 
+By substituting the estimated parameters which solve the first order derivatives, we can get the information matrix.
+
+***d***
+
+$$det(I) \times \frac{1}{N} \left( \begin{smallmatrix} 
+ \Sigma_2^N(\frac{1}{(\omega + \alpha * x_{i-1})^2} - 2* \frac{x_{i-1}}{(\omega + \alpha * x_{i-1})^3}) & -\Sigma_2^N(\frac{x_{i-1}}{(\omega + \alpha * x_{i-1})^2} - 2 *\frac{x_{i-1}^2}{(\omega + \alpha * x_{i-1})^3}) \\
+-\Sigma_2^N(\frac{x_{i-1}}{(\omega + \alpha * x_{i-1})^2} - 2* \frac{x_{i-1}^2}{(\omega + \alpha * x_{i-1})^3}) & \Sigma_2^N(\frac{x_{i-1}^2}{(\omega + \alpha * x_{i-1})^2} - 2 *\frac{x_{i-1}^3}{(\omega + \alpha * x_{i-1})^3})
+\end{smallmatrix} \right) \mid \omega = \hat{\omega}, \alpha = \hat{\alpha}$$
+
+***e***
+
+***f***
+
+$$\frac{1}{N}\hat{I}^{-1}_{2d}\hat{I}_{op}\hat{I}^{-1}_{2d}$$
