@@ -1,9 +1,35 @@
-data<-read.csv("c:/citadel2015/data/sp500_daily.csv")
-require(fGarch)
 require(timeSeries)
 require(tseries)
+require(stats)
+require(forecast)
+library(xts)
+library(gdata)
+library(plyr)
+library(knitr)
+library(ggplot2)
+library(forecast)
+require(plotrix)
+library(fGarch)
 
-r<-data$ret
+orderByDate <- function (x){
+  x$DateTime <- as.Date(x$Date, "%Y-%m-%d")
+  x <- x[order(x$DateTime, decreasing=F),]
+  x <- x[complete.cases(x),]
+  x
+}
+
+logRateReturn <- function(x){
+  x$logReturn <- c(NA, diff(log(x$Adj.Close)))
+  x
+}
+
+
+data <- read.csv("spy.csv")
+data <- orderByDate(spy)
+data <- logRateReturn(spy)[-1,]
+
+
+r<-data$logReturn
 date <- as.Date(data$Date, format="%m/%d/%Y")
 r2=252*r*r
 ar=sqrt(252)*r
@@ -82,20 +108,20 @@ valrisk_norm<-cc*(.1489/sqrt(252))
 valrisk_norm
 #GARCH with t
 
-tgarch.1.model <- garchFit(~garch(1,1),data=ar, cond.dist=c("std"))
-summary(tgarch.1.model)
-p<-coef(tgarch.1.model)
-
-t_q<-qt(.01,6.82)/sqrt(p[5]/(p[5]-2))
-t_q
-valrisk_t<-t_q*(.1489/sqrt(252))
-valrisk_t
-
-#Semi parametric
-qq=quantile(stdres,.01)
-qq
-valrisk_sp<-qq*(.1489/sqrt(252))
-valrisk_sp
+# tgarch.1.model <- garchFit(~garch(1,1),data=ar, cond.dist=c("std"))
+# summary(tgarch.1.model)
+# p<-coef(tgarch.1.model)
+# 
+# t_q<-qt(.01,6.82)/sqrt(p[5]/(p[5]-2))
+# t_q
+# valrisk_t<-t_q*(.1489/sqrt(252))
+# valrisk_t
+# 
+# #Semi parametric
+# qq=quantile(stdres,.01)
+# qq
+# valrisk_sp<-qq*(.1489/sqrt(252))
+# valrisk_sp
 
 
 
