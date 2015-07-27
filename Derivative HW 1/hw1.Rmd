@@ -1,0 +1,121 @@
+---
+title: "Derivatives Homework 1"
+author: "Zachary Fogelson"
+date: "July 27, 2015"
+output: html_document
+---
+
+```{r, include = F}
+require(timeSeries)
+require(tseries)
+require(stats)
+require(forecast)
+library(xts)
+library(gdata)
+library(plyr)
+library(knitr)
+library(ggplot2)
+library(forecast)
+require(plotrix)
+library(fGarch)
+require(splines)
+```
+
+### Problem 5
+```{r}
+orderByDate <- function (x){
+  x$DateTime <- as.Date(x$Date, "%Y-%m-%d")
+  x <- x[order(x$DateTime, decreasing=F),]
+  x <- x[complete.cases(x),]
+  x
+}
+
+
+aapl <- orderByDate(read.csv("aapl.csv"))
+aaplDaily <- orderByDate(read.csv("aaplDaily.csv"))
+
+nflx <- orderByDate(read.csv("nflx.csv"))
+nflxDaily <- orderByDate(read.csv("nflxDaily.csv"))
+
+tif <- orderByDate(read.csv("tif.csv"))
+tifDaily <- orderByDate(read.csv("tifDaily.csv"))
+
+
+```
+
+
+***a***
+```{r}
+normalReturn <- function(x){
+  x$normalReturn <- x$Adj.Close / x$Adj.Close[1]
+  x
+}
+
+aapl <- normalReturn(aapl)
+nflx <- normalReturn(nflx)
+tif <- normalReturn(tif)
+
+plot.ts(aapl$normalReturn, type = "l", ylim = c(1,15), ylab = "xOriginal Price",main = "AAPL vs NFLX vs TIF Weekly Growth")
+lines(nflx$normalReturn, col = "red")
+lines(tif$normalReturn, col = "blue")
+legend("topleft", c("aapl","nflx", "tif"), pch=1, col=c('black', 'red', "blue"),
+       lty=1, cex=.75)
+
+```
+
+```{r}
+aaplDaily <- normalReturn(aaplDaily)
+nflxDaily <- normalReturn(nflxDaily)
+tifDaily <- normalReturn(tifDaily)
+
+plot.ts(aaplDaily$normalReturn, type = "l", ylab = "xOriginal Price",main = "AAPL vs NFLX vs TIF Daily Growth", ylim = c(0.5,1.7))
+lines(nflxDaily$normalReturn, col = "red")
+lines(tifDaily$normalReturn, col = "blue")
+legend("topleft", c("aapl","nflx", "tif"), pch=1, col=c('black', 'red', "blue"),
+       lty=1, cex=.75)
+```
+
+***b***
+```{r}
+logRateReturn <- function(x){
+  x$logReturn <- c(NA, diff(log(x$Adj.Close)))
+  x
+}
+
+aapl <- logRateReturn(aapl)
+nflx <- logRateReturn(nflx)
+tif <- logRateReturn(tif)
+
+weeklyReturns = data.frame(AAPL = aapl$logReturn[-1], NFLX = nflx$logReturn[-1], TIF = tif$logReturn[-1])
+
+plot.ts(weeklyReturns, type = "l", ylab = "Rate Of Return",main = "AAPL vs NFLX vs TIF Weekly ROR", col = c("black", "red", "blue"))
+```
+
+```{r}
+aaplDaily <- logRateReturn(aaplDaily)
+nflxDaily <- logRateReturn(nflxDaily)
+tifDaily <- logRateReturn(tifDaily)
+
+dailyReturns = data.frame(AAPL = aaplDaily$logReturn[-1], NFLX = nflxDaily$logReturn[-1], TIF = tifDaily$logReturn[-1])
+
+plot.ts(dailyReturns, type = "l", ylab = "Rate Of Return",main = "AAPL vs NFLX vs TIF Daily ROR", col = c("black", "red", "blue"))
+```
+
+
+***c***
+```{r}
+annualNormalSdWeekly <- function(x){
+   sd(x[-1])*sqrt(52)
+}
+
+annualNormalSdDaily <- function(x){
+  sd(x[-1])*sqrt(256)
+}
+
+
+sds <- cat("AAPl: ", annualNormalSdWeekly(aapl$logReturn), "\nNFLX: ", annualNormalSdWeekly(nflx$logReturn), "\nTIF: ",
+annualNormalSdWeekly(tifDaily$logReturn), "\nAAPl Daily: ",
+annualNormalSdDaily(aaplDaily$logReturn), "\nNFLX Daily: ",
+annualNormalSdDaily(nflxDaily$logReturn), "\nTIF Daily: ",
+annualNormalSdDaily(tifDaily$logReturn), "\n")
+```
