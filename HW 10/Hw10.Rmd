@@ -2,7 +2,7 @@
 title: "FTAP Homework 10"
 author: "Zachary Fogelson"
 date: "July 25, 2015"
-output: html_document
+output: pdf_document
 ---
 
 ```{r, include = F}
@@ -209,7 +209,6 @@ $$\frac{dU}{d\alpha} = x_{i-1}$$
 
 $$\frac{d\mathcal{L}}{d\alpha} = \Sigma_2^N(-\frac{x_{i-1}}{\omega + \alpha * x_{i-1}} + \frac{x_{i-1}^2}{(\omega + \alpha * x_{i-1})^2})$$
 
-\hline
 
 $$\frac{d\mathcal{L}}{d\omega} = \Sigma_2^N(-\frac{1}{U}*\frac{dU}{d\omega} + x_{i-1}\frac{1}{U^2}*\frac{dU}{d\omega})$$
 
@@ -221,7 +220,7 @@ $$\frac{d\mathcal{L}}{d\omega} = \Sigma_2^N(-\frac{1}{\omega + \alpha * x_{i-1}}
 ***c***
 
 
-$$\frac{d^2\mathcal{L}}{d^2\alpha} = $$\frac{d\mathcal{L}}{d\alpha} = \Sigma_2^N(-\frac{x_{i-1}}{\omega + \alpha * x_{i-1}} + \frac{x_{i-1}^2}{(\omega + \alpha * x_{i-1})^2})$$
+$$\frac{d^2\mathcal{L}}{d^2\alpha} = \Sigma_2^N(-\frac{x_{i-1}}{\omega + \alpha * x_{i-1}} + \frac{x_{i-1}^2}{(\omega + \alpha * x_{i-1})^2})$$
 
 
 
