@@ -101,7 +101,9 @@ plot(bestBuy$DateTime,corr,type="l", col="blue")
 ***e***
 ```{r}
 forecast <- predict(garch,n.ahead=1)
-oneDayVar <- .3^2*(beta.bestBuy^2*forecast$standardDeviation^2 +  var(lm.bestBuy$residuals)) + .7^2*(beta.homeDepot^2*forecast$standardDeviation^2 + var(lm.homeDepot$residuals)) + 2 * cov[length(bestBuy$excessReturn)]*.3*.7
+oneDayVar <- .3^2*(beta.bestBuy^2*forecast$standardDeviation^2 +  var(lm.bestBuy$residuals)) 
+  + .7^2*(beta.homeDepot^2*forecast$standardDeviation^2 + var(lm.homeDepot$residuals)) + 2 *   
+  cov[length(bestBuy$excessReturn)]*.3*.7
 oneDayVar
 ```
 
@@ -221,6 +223,7 @@ $$\frac{d\mathcal{L}}{d\omega} = \Sigma_2^N(-\frac{1}{\omega + \alpha * x_{i-1}}
 
 
 $$\frac{d^2\mathcal{L}}{d^2\alpha} = \Sigma_2^N(-\frac{x_{i-1}}{\omega + \alpha * x_{i-1}} + \frac{x_{i-1}^2}{(\omega + \alpha * x_{i-1})^2})$$
+
 
 
 

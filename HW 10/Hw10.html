@@ -262,14 +262,15 @@ kable(head(outer(all.betas, all.betas) * var(spyDaily$logReturn) + diag(5) * all
 <p><span class="math">\[L = f(x_N | F_{N-1, \theta}) *...* f(x_2 | F_{1,  \theta})\]</span> <span class="math">\[\mathcal{L} = log(f(x_N | F_{N-1, \theta})) +...+ log(f(x_2 | F_{1,  \theta}))\]</span> <span class="math">\[\mathcal{L} = \Sigma_2^N log(f(x_i | F_{i-1, \theta}))\]</span> <span class="math">\[\mathcal{L} = \Sigma_2^N log(\frac{1}{\omega + \alpha * x_{i-1}} e^{\frac{-x_i}{\omega + \alpha * x_{i-1}}})\]</span></p>
 <p><span class="math">\[\mathcal{L} = \Sigma_2^N -log(\omega + \alpha * x_{i-1}) + \frac{-x_i}{\omega + \alpha * x_{i-1}}\]</span></p>
 <p><strong><em>b</em></strong></p>
-<p>Assume <span class="math">\(x_i\)</span> in the conditional probability function should be an x_{i-1} Let <span class="math">\(U = \omega + \alpha * x_{i-1}\)</span></p>
+<p>Assume <span class="math">\(x_i\)</span> in the conditional probability function should be an <span class="math">\(x_{i-1}\)</span> Let <span class="math">\(U = \omega + \alpha * x_{i-1}\)</span></p>
 <p><span class="math">\[\frac{d\mathcal{L}}{d\alpha} = \Sigma_2^N(-\frac{1}{U}*\frac{dU}{d\alpha} + x_{i-1}\frac{1}{U^2}*\frac{dU}{d\alpha})\]</span></p>
 <p><span class="math">\[\frac{dU}{d\alpha} = x_{i-1}\]</span></p>
 <p><span class="math">\[\frac{d\mathcal{L}}{d\alpha} = \Sigma_2^N(-\frac{x_{i-1}}{\omega + \alpha * x_{i-1}} + \frac{x_{i-1}^2}{(\omega + \alpha * x_{i-1})^2})\]</span></p>
-<p></p>
 <p><span class="math">\[\frac{d\mathcal{L}}{d\omega} = \Sigma_2^N(-\frac{1}{U}*\frac{dU}{d\omega} + x_{i-1}\frac{1}{U^2}*\frac{dU}{d\omega})\]</span></p>
 <p><span class="math">\[\frac{dU}{d\omega} = 1\]</span></p>
 <p><span class="math">\[\frac{d\mathcal{L}}{d\omega} = \Sigma_2^N(-\frac{1}{\omega + \alpha * x_{i-1}} + \frac{x_{i-1}}{(\omega + \alpha * x_{i-1})^2})\]</span></p>
+<p><strong><em>c</em></strong></p>
+<p><span class="math">\[\frac{d^2\mathcal{L}}{d^2\alpha} = \Sigma_2^N(-\frac{x_{i-1}}{\omega + \alpha * x_{i-1}} + \frac{x_{i-1}^2}{(\omega + \alpha * x_{i-1})^2})\]</span></p>
 </div>
 
 
