@@ -67,6 +67,37 @@ img {
 </div>
 
 
+<div id="problem-1" class="section level3">
+<h3>Problem 1</h3>
+<p><strong>a</strong> <span class="math">\[Var(A + B + C + D) = w_a^2Var(A) + w_b^2Var(B) + w_c^2Var(C) + w_d^2Var(D) + \]</span> <span class="math">\[ 2 * (w_aw_bcov(A,B) + w_aw_ccov(A,C) + w_aw_dcov(A,D) + w_bw_ccov(B,C) + w_bw_dcov(B, D) + w_cw_dcov(C, D))\]</span></p>
+<p><span class="math">\[Var(Mrkt) = .0715\]</span></p>
+<p><span class="math">\[Cov(A, A+B+C+D) = Var(A) + Cov(A,B) + C(A,C) + Cov(A,D)\]</span> Similarly for B,C,D. Interestingly, this corresponds to the sum of the elements in any given row of the Variance Covariance matrix!</p>
+<p><span class="math">\[Cov(A, P) = 0.2308\]</span> <span class="math">\[Cov(B, P) = 0.2660\]</span> <span class="math">\[Cov(C, P) = 0.3012\]</span> <span class="math">\[Cov(D, P) = 0.3364\]</span></p>
+<p><strong>b</strong> <span class="math">\[\beta = \frac{Cov(P,A)}{\sigma_P^2}\]</span></p>
+<p><span class="math">\[\beta_A = 3.226\]</span> <span class="math">\[\beta_B = 3.718\]</span> <span class="math">\[\beta_C = 4.210\]</span> <span class="math">\[\beta_D = 4.702\]</span></p>
+<p><strong>c</strong> <span class="math">\[r_A - r_f = \beta_A*[E(r_m) - r_f]\]</span></p>
+<p><span class="math">\[E(r_A - r_f) = 0.226\]</span> <span class="math">\[E(r_B - r_f) = 0.260\]</span> <span class="math">\[E(r_C - r_f) = 0.295\]</span> <span class="math">\[E(r_D - r_f) = 0.329\]</span></p>
+<p><strong>d</strong></p>
+<p>MVE Weights of the Portfolio:</p>
+<p>A: 24%</p>
+<p>B: 25%</p>
+<p>C: 25%</p>
+<p>D: 26%</p>
+<p>The MVE weights are exactly the percentage of each firm over the value of the market.</p>
+<p><strong>e</strong> MVE Weights of the Portfolio:</p>
+<p>A: 25%</p>
+<p>B: 25%</p>
+<p>C: 25%</p>
+<p>D: 25%</p>
+<p>The weights have changed.</p>
+<p><strong>f</strong></p>
+<p>MVE Weights of the Portfolio:</p>
+<p>A: 29%</p>
+<p>B: 23%</p>
+<p>C: 24%</p>
+<p>D: 24%</p>
+<p>Var(P) = .0028</p>
+</div>
 <div id="problem-2" class="section level3">
 <h3>Problem 2</h3>
 <ul>
@@ -493,39 +524,319 @@ coefs &lt;- coefs[,-1]
 names(coefs) &lt;- regressors</code></pre>
 <p><strong>b</strong></p>
 <pre class="r"><code>coefs &lt;- rbind(coefs, sapply(ports, mean))
-head(coefs)</code></pre>
-<pre><code>##            SMALL.LoBM      ME1.BM2    ME1.BM3    ME1.BM4 SMALL.HiBM
-## alpha    -0.007230000 -0.003730000 -0.0011200 0.00105000 0.00063000
-## betaMrkt  1.250730000  1.069930000  1.0507300 0.91796000 0.97585000
-## betaSMB   1.513170000  1.540240000  1.2268800 1.22694000 1.32734000
-## betaHML   0.448930000  0.229680000  0.5043500 0.58482000 0.91703000
-## 5         0.008049002  0.009341018  0.0121487 0.01370778 0.01544561
-##               ME2.BM1     ME2.BM2    ME2.BM3    ME2.BM4     ME2.BM5
-## alpha    -0.002150000 -0.00033000 0.00038000 0.00062000 -0.00029000
-## betaMrkt  1.088400000  1.02676000 0.99346000 0.97966000  1.06580000
-## betaSMB   1.136420000  0.96611000 0.82347000 0.81675000  0.89446000
-## betaHML  -0.234400000  0.14971000 0.37182000 0.56803000  0.89824000
-## 5         0.007898004  0.01048363 0.01153393 0.01251218  0.01389491
-##               ME3.BM1    ME3.BM2    ME3.BM3    ME3.BM4     ME3.BM5
-## alpha    -0.000980000 0.00109000 0.00061000 0.00055000 -0.00053000
-## betaMrkt  1.133740000 1.01309000 1.00672000 1.00021000  1.11593000
-## betaSMB   0.821910000 0.50674000 0.43267000 0.44911000  0.59972000
-## betaHML  -0.238450000 0.04692000 0.32289000 0.55647000  0.87431000
-## 5         0.008504291 0.01007116 0.01055569 0.01152186  0.01309661
-##               ME4.BM1      ME4.BM2    ME4.BM3    ME4.BM4     ME4.BM5
-## alpha     0.000910000 -0.000120000 0.00040000 0.00031000 -0.00217000
-## betaMrkt  1.063530000  1.033680000 1.04850000 1.02701000  1.20685000
-## betaSMB   0.331180000  0.216180000 0.20055000 0.22608000  0.30503000
-## betaHML  -0.354570000  0.096090000 0.35027000 0.56395000  0.96021000
-## 5         0.008010679  0.008429242 0.01012555 0.01088782  0.01168463
-##              BIG.LoBM      ME5.BM2      ME5.BM3      ME5.BM4    BIG.HiBM
-## alpha     0.000730000  0.000170000  0.000070000 -0.001660000 -0.00164000
-## betaMrkt  1.018840000  0.985420000  0.980970000  1.034200000  1.13357000
-## betaSMB  -0.150020000 -0.212170000 -0.231250000 -0.168650000 -0.13526000
-## betaHML  -0.251930000  0.031300000  0.311010000  0.638470000  0.97718000
-## 5         0.006622156  0.006885729  0.007933433  0.008205988  0.01052764</code></pre>
-<pre class="r"><code>rownames(coefs)  &lt;- c(rownames(coefs)[-length(rownames(coefs))], &quot;actual&quot;)
-coefs &lt;- data.frame(t(coefs))
+rownames(coefs)  &lt;- c(rownames(coefs)[-length(rownames(coefs))], &quot;actual&quot;)
+# pandoc.table(coefs,split.tables=90 )</code></pre>
+<table>
+<colgroup>
+<col width="20%"></col>
+<col width="18%"></col>
+<col width="13%"></col>
+<col width="13%"></col>
+<col width="13%"></col>
+<col width="16%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center"> </th>
+<th align="center">SMALL.LoBM</th>
+<th align="center">ME1.BM2</th>
+<th align="center">ME1.BM3</th>
+<th align="center">ME1.BM4</th>
+<th align="center">SMALL.HiBM</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center"><strong>alpha</strong></td>
+<td align="center">-0.00723</td>
+<td align="center">-0.00373</td>
+<td align="center">-0.00112</td>
+<td align="center">0.00105</td>
+<td align="center">0.00063</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>betaMrkt</strong></td>
+<td align="center">1.251</td>
+<td align="center">1.07</td>
+<td align="center">1.051</td>
+<td align="center">0.918</td>
+<td align="center">0.9758</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>betaSMB</strong></td>
+<td align="center">1.513</td>
+<td align="center">1.54</td>
+<td align="center">1.227</td>
+<td align="center">1.227</td>
+<td align="center">1.327</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>betaHML</strong></td>
+<td align="center">0.4489</td>
+<td align="center">0.2297</td>
+<td align="center">0.5043</td>
+<td align="center">0.5848</td>
+<td align="center">0.917</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>actual</strong></td>
+<td align="center">0.008049</td>
+<td align="center">0.009341</td>
+<td align="center">0.01215</td>
+<td align="center">0.01371</td>
+<td align="center">0.01545</td>
+</tr>
+</tbody>
+</table>
+<table>
+<colgroup>
+<col width="20%"></col>
+<col width="13%"></col>
+<col width="13%"></col>
+<col width="13%"></col>
+<col width="13%"></col>
+<col width="13%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center"> </th>
+<th align="center">ME2.BM1</th>
+<th align="center">ME2.BM2</th>
+<th align="center">ME2.BM3</th>
+<th align="center">ME2.BM4</th>
+<th align="center">ME2.BM5</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center"><strong>alpha</strong></td>
+<td align="center">-0.00215</td>
+<td align="center">-0.00033</td>
+<td align="center">0.00038</td>
+<td align="center">0.00062</td>
+<td align="center">-0.00029</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>betaMrkt</strong></td>
+<td align="center">1.088</td>
+<td align="center">1.027</td>
+<td align="center">0.9935</td>
+<td align="center">0.9797</td>
+<td align="center">1.066</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>betaSMB</strong></td>
+<td align="center">1.136</td>
+<td align="center">0.9661</td>
+<td align="center">0.8235</td>
+<td align="center">0.8167</td>
+<td align="center">0.8945</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>betaHML</strong></td>
+<td align="center">-0.2344</td>
+<td align="center">0.1497</td>
+<td align="center">0.3718</td>
+<td align="center">0.568</td>
+<td align="center">0.8982</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>actual</strong></td>
+<td align="center">0.007898</td>
+<td align="center">0.01048</td>
+<td align="center">0.01153</td>
+<td align="center">0.01251</td>
+<td align="center">0.01389</td>
+</tr>
+</tbody>
+</table>
+<table>
+<colgroup>
+<col width="20%"></col>
+<col width="13%"></col>
+<col width="13%"></col>
+<col width="13%"></col>
+<col width="13%"></col>
+<col width="13%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center"> </th>
+<th align="center">ME3.BM1</th>
+<th align="center">ME3.BM2</th>
+<th align="center">ME3.BM3</th>
+<th align="center">ME3.BM4</th>
+<th align="center">ME3.BM5</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center"><strong>alpha</strong></td>
+<td align="center">-0.00098</td>
+<td align="center">0.00109</td>
+<td align="center">0.00061</td>
+<td align="center">0.00055</td>
+<td align="center">-0.00053</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>betaMrkt</strong></td>
+<td align="center">1.134</td>
+<td align="center">1.013</td>
+<td align="center">1.007</td>
+<td align="center">1</td>
+<td align="center">1.116</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>betaSMB</strong></td>
+<td align="center">0.8219</td>
+<td align="center">0.5067</td>
+<td align="center">0.4327</td>
+<td align="center">0.4491</td>
+<td align="center">0.5997</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>betaHML</strong></td>
+<td align="center">-0.2384</td>
+<td align="center">0.04692</td>
+<td align="center">0.3229</td>
+<td align="center">0.5565</td>
+<td align="center">0.8743</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>actual</strong></td>
+<td align="center">0.008504</td>
+<td align="center">0.01007</td>
+<td align="center">0.01056</td>
+<td align="center">0.01152</td>
+<td align="center">0.0131</td>
+</tr>
+</tbody>
+</table>
+<table>
+<colgroup>
+<col width="20%"></col>
+<col width="13%"></col>
+<col width="13%"></col>
+<col width="13%"></col>
+<col width="13%"></col>
+<col width="13%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center"> </th>
+<th align="center">ME4.BM1</th>
+<th align="center">ME4.BM2</th>
+<th align="center">ME4.BM3</th>
+<th align="center">ME4.BM4</th>
+<th align="center">ME4.BM5</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center"><strong>alpha</strong></td>
+<td align="center">0.00091</td>
+<td align="center">-0.00012</td>
+<td align="center">4e-04</td>
+<td align="center">0.00031</td>
+<td align="center">-0.00217</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>betaMrkt</strong></td>
+<td align="center">1.064</td>
+<td align="center">1.034</td>
+<td align="center">1.048</td>
+<td align="center">1.027</td>
+<td align="center">1.207</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>betaSMB</strong></td>
+<td align="center">0.3312</td>
+<td align="center">0.2162</td>
+<td align="center">0.2006</td>
+<td align="center">0.2261</td>
+<td align="center">0.305</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>betaHML</strong></td>
+<td align="center">-0.3546</td>
+<td align="center">0.09609</td>
+<td align="center">0.3503</td>
+<td align="center">0.5639</td>
+<td align="center">0.9602</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>actual</strong></td>
+<td align="center">0.008011</td>
+<td align="center">0.008429</td>
+<td align="center">0.01013</td>
+<td align="center">0.01089</td>
+<td align="center">0.01168</td>
+</tr>
+</tbody>
+</table>
+<table>
+<colgroup>
+<col width="20%"></col>
+<col width="15%"></col>
+<col width="13%"></col>
+<col width="13%"></col>
+<col width="13%"></col>
+<col width="13%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center"> </th>
+<th align="center">BIG.LoBM</th>
+<th align="center">ME5.BM2</th>
+<th align="center">ME5.BM3</th>
+<th align="center">ME5.BM4</th>
+<th align="center">BIG.HiBM</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center"><strong>alpha</strong></td>
+<td align="center">0.00073</td>
+<td align="center">0.00017</td>
+<td align="center">7e-05</td>
+<td align="center">-0.00166</td>
+<td align="center">-0.00164</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>betaMrkt</strong></td>
+<td align="center">1.019</td>
+<td align="center">0.9854</td>
+<td align="center">0.981</td>
+<td align="center">1.034</td>
+<td align="center">1.134</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>betaSMB</strong></td>
+<td align="center">-0.15</td>
+<td align="center">-0.2122</td>
+<td align="center">-0.2313</td>
+<td align="center">-0.1686</td>
+<td align="center">-0.1353</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>betaHML</strong></td>
+<td align="center">-0.2519</td>
+<td align="center">0.0313</td>
+<td align="center">0.311</td>
+<td align="center">0.6385</td>
+<td align="center">0.9772</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>actual</strong></td>
+<td align="center">0.006622</td>
+<td align="center">0.006886</td>
+<td align="center">0.007933</td>
+<td align="center">0.008206</td>
+<td align="center">0.01053</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>coefs &lt;- data.frame(t(coefs))
 kable(coefs)</code></pre>
 <table>
 <thead>
