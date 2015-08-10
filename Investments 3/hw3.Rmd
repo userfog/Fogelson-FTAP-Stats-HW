@@ -183,7 +183,8 @@ summary(lm.capm)
 **d**
 ```{r}
 coefs$predictions <- mean(mrkt$Mkt.RF) * coefs$beta
-barplot(c(coefs$predictions, coefs$actual), beside = T, col=c("aquamarine3","coral"))
+plot(coefs$predictions, type="l", col="aquamarine3", ylim = c(0,.05))
+lines(coefs$actual, col="coral")
 legend("topleft", c("Predicted","Actual"), pch=15, col=c("aquamarine3","coral"), bty="n")
 ```
 
@@ -298,7 +299,8 @@ coefs$predictions <- mean(mrkt$Mkt.RF) * coefs$betaMrkt +
   mean(mrkt$SMB) * coefs$betaSMB +
   mean(mrkt$HML) * coefs$betaHML
 
-barplot(c(coefs$predictions, coefs$actual), beside = T, col=c("aquamarine3","coral"))
+plot(coefs$predictions, type="l", col="aquamarine3")
+lines(coefs$actual, col="coral")
 legend("topright", c("Predicted","Actual"), pch=15, col=c("aquamarine3","coral"), bty="n")
 ```
 
@@ -314,10 +316,10 @@ barplot(sqrt(eigens$values))
 
 ```{r}
 loadings <- eigens$vectors[c(1:5),]
-pc1 <- matrix(loadings[1,], nrow = 5, ncol = 5)
-pc2 <- matrix(loadings[2,], nrow = 5, ncol = 5)
-pc3 <- matrix(loadings[3,], nrow = 5, ncol = 5)
-pc4 <- matrix(loadings[4,], nrow = 5, ncol = 5)
+pc1 <- matrix(loadings[,1], nrow = 5, ncol = 5)
+pc2 <- matrix(loadings[,2], nrow = 5, ncol = 5)
+pc3 <- matrix(loadings[,3], nrow = 5, ncol = 5)
+pc4 <- matrix(loadings[,4], nrow = 5, ncol = 5)
 kable(pc1)
 kable(pc2)
 kable(pc3)
