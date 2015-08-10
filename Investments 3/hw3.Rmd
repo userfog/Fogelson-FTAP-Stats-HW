@@ -1,0 +1,173 @@
+---
+title: "Investments HW 3"
+author: "Zachary Fogelson"
+date: "August 9, 2015"
+output: html_document
+---
+
+```{r, include=F}
+library(plyr)
+library(knitr)
+library(pander)
+```
+
+### Problem 2
+
+- Format Data
+
+```{r}
+openFormat <- function(x, skips){
+  y <- read.csv(x, skip=skips, nrows=1068)
+  y <- rename(y, c("X"="Date"))
+  y <- y[y$Date > 193200,]
+  tmp <- y$Date
+  y <- y[,-1]/100
+  y$Date <- tmp
+  y
+}
+
+mrkt <- openFormat("F-F_Research_Data_Factors.CSV", 3)
+ports <- openFormat("25_Portfolios_5x5.CSV", 19)
+dates <- ports$Date
+ports <- ports - mrkt$RF
+ports$Date <- dates
+
+```
+
+***a***
+```{r, eval=T}
+regressors <- names(ports)[-length(ports)]
+coefs <- data.frame(Index=c(1,2), row.names = c("alpha", "beta"))
+for(i in regressors){
+  cs <- coefficients(lm(ports[,i] ~ mrkt$Mkt.RF))
+  coefs <- cbind(coefs, rbind(round(as.numeric(cs["(Intercept)"]),5), round(as.numeric(cs["mrkt$Mkt.RF"]),5)))
+}
+coefs <- coefs[,-1]
+names(coefs) <- regressors
+# pandoc.table(coefs,split.tables=90 )
+```
+  
+ -------------------------------------------------------------------
+   &nbsp;     SMALL.LoBM   ME1.BM2   ME1.BM3   ME1.BM4   SMALL.HiBM 
+ ----------- ------------ --------- --------- --------- ------------
+  **alpha**    -0.00396   -0.00117   0.00199   0.00443    0.00524   
+ 
+  **beta**      1.651       1.444     1.395     1.274      1.402    
+ ------------------------------------------------------------------- 
+  
+ -------------------------------------------------------------
+   &nbsp;     ME2.BM1   ME2.BM2   ME2.BM3   ME2.BM4   ME2.BM5 
+ ----------- --------- --------- --------- --------- ---------
+  **alpha**  -0.00161   0.0013    0.00259   0.00347   0.00375 
+ 
+  **beta**     1.306     1.262     1.23      1.243     1.394  
+ ------------------------------------------------------------- 
+  
+ -------------------------------------------------------------
+   &nbsp;     ME3.BM1   ME3.BM2   ME3.BM3   ME3.BM4   ME3.BM5 
+ ----------- --------- --------- --------- --------- ---------
+  **alpha**  -0.00082   0.00183   0.00219   0.00293   0.00309 
+ 
+  **beta**     1.281     1.132     1.149     1.18      1.375  
+ ------------------------------------------------------------- 
+  
+ -------------------------------------------------------------
+   &nbsp;     ME4.BM1   ME4.BM2   ME4.BM3   ME4.BM4   ME4.BM5 
+ ----------- --------- --------- --------- --------- ---------
+  **alpha**   0.00011   0.00046   0.0018    0.00245   0.0014  
+ 
+  **beta**     1.085     1.095     1.144     1.159     1.413  
+ ------------------------------------------------------------- 
+  
+ ---------------------------------------------------------------
+   &nbsp;     BIG.LoBM   ME5.BM2   ME5.BM3   ME5.BM4   BIG.HiBM 
+ ----------- ---------- --------- --------- --------- ----------
+  **alpha**   -0.00029    2e-05    0.00084   0.00028   0.00147  
+ 
+  **beta**     0.9492     0.943    0.9748     1.089     1.245   
+ ---------------------------------------------------------------
+ 
+**b**
+```{r, eval=T}
+coefs <- rbind(coefs, sapply(ports, mean))
+rownames(coefs)  <- c("alpha", "beta", "actual")
+coefs <- data.frame(t(coefs))
+kable(coefs)
+```
+
+
+**c**
+```{r}
+lm.capm <- lm(actual ~ beta, coefs)
+summary(lm.capm)
+```
+
+**d**
+```{r}
+coefs$predictions <- mean(mrkt$Mkt.RF) * coefs$beta
+barplot(c(coefs$predictions, coefs$actual), beside = T, col=c("aquamarine3","coral"))
+legend("topleft", c("Predicted","Actual"), pch=15, col=c("aquamarine3","coral"), bty="n")
+```
+
+
+### Problem 3
+
+**a**
+
+```{r}
+coefs <- data.frame(Index=c(1,2,3,4), row.names = c("alpha", "betaMrkt", "betaSMB", "betaHML"))
+for(i in regressors){
+  cs <- coefficients(lm(ports[,i] ~ mrkt$Mkt.RF + mrkt$SMB + mrkt$HML))
+  coefs <- cbind(coefs, rbind(round(as.numeric(cs["(Intercept)"]),5), round(as.numeric(cs["mrkt$Mkt.RF"]),5), round(as.numeric(cs["mrkt$SMB"]),5), round(as.numeric(cs["mrkt$HML"]),5)))
+}
+coefs <- coefs[,-1]
+names(coefs) <- regressors
+```
+
+**b**
+
+```{r}
+coefs <- rbind(coefs, sapply(ports, mean))
+head(coefs)
+rownames(coefs)  <- c(rownames(coefs)[-length(rownames(coefs))], "actual")
+coefs <- data.frame(t(coefs))
+kable(coefs)
+```
+
+**c**
+```{r}
+lm.ff3f <- lm(actual ~ betaMrkt + betaSMB + betaHML, coefs)
+summary(lm.ff3f)
+```
+
+**d**
+```{r}
+coefs$predictions <- mean(mrkt$Mkt.RF) * coefs$betaMrkt +
+  mean(mrkt$SMB) * coefs$betaSMB +
+  mean(mrkt$HML) * coefs$betaHML
+
+barplot(c(coefs$predictions, coefs$actual), beside = T, col=c("aquamarine3","coral"))
+legend("topright", c("Predicted","Actual"), pch=15, col=c("aquamarine3","coral"), bty="n")
+```
+
+### Problem 4
+
+**a**
+
+```{r}
+covMat <- cov(subset(ports, select = -(Date)))
+eigens <- eigen(covMat)
+barplot(sqrt(eigens$values))
+```
+
+```{r}
+loadings <- eigens$vectors[c(1:5),]
+pc1 <- matrix(loadings[1,], nrow = 5, ncol = 5)
+pc2 <- matrix(loadings[2,], nrow = 5, ncol = 5)
+pc3 <- matrix(loadings[3,], nrow = 5, ncol = 5)
+pc4 <- matrix(loadings[4,], nrow = 5, ncol = 5)
+kable(pc1)
+kable(pc2)
+kable(pc3)
+kable(pc4)
+```

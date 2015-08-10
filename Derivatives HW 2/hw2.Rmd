@@ -1,0 +1,159 @@
+---
+title: "Derivatives Homework 2"
+author: "Zachary Fogelson"
+date: "August 6, 2015"
+output: html_document
+---
+```{r, include = F}
+require(timeSeries)
+require(tseries)
+require(stats)
+require(forecast)
+library(xts)
+library(gdata)
+library(plyr)
+library(knitr)
+library(ggplot2)
+library(forecast)
+require(plotrix)
+library(fGarch)
+require(splines)
+```
+### Problem 9
+
+***a***
+```{r}
+orderByDate <- function (x){
+  x$DateTime <- as.Date(x$Date, "%Y-%m-%d")
+  x <- x[order(x$DateTime, decreasing=F),]
+  x <- x[complete.cases(x),]
+  x
+}
+
+qqq <- orderByDate(read.csv("qqq.csv"))
+
+sp500 <- orderByDate(read.csv("sp500.csv"))
+
+orcl <- orderByDate(read.csv("orcl.csv"))
+
+orclSd <- sd(diff(log(orcl$Adj.Close)))
+sp500Sd <- sd(diff(log(sp500$Adj.Close)))
+qqqSd <- sd(diff(log(qqq$Adj.Close)))
+
+orclSp500 <- cor(diff(log(orcl$Adj.Close)), diff(log(sp500$Adj.Close)))
+orclQqq <- cor(diff(log(orcl$Adj.Close)), diff(log(qqq$Adj.Close)))
+sp500Qqq <- cor(diff(log(sp500$Adj.Close)), diff(log(qqq$Adj.Close)))
+
+
+kable(head(data.frame(Sds=c(orclSd, sp500Sd, qqqSd), Cors=c(orclSp500, orclQqq, sp500Qqq))))
+```
+
+***b***
+Due to the fact that the correlation between Oracle and the SP500 is much higher than the correlation between Oracle amd the nasdaq shorting the SP500 would likely be the best hedge when going long oracle. 
+
+
+***c***
+$$H^*  = \frac{I_p}{N}\frac{cov(r_p, r_{qqq})}{\sigma^2_{qqq}}$$
+(Assume risk free is 0)
+
+```{r}
+r_o <- diff(log(orcl$Adj.Close))
+r_q <- diff(log(20*qqq$Adj.Close))
+
+I <- 32*2000
+
+sizeOfHedge <- -1*I/length(r_o) * cov(r_o, r_q)/var(r_q)
+
+sdHedge <- sqrt(var(r_q)*I^2*(1-cor(r_o,r_q)^2))
+
+cat("Size of Hedge: " , sizeOfHedge , " Sd Hedge: " , sdHedge)
+```
+
+### Problem 12
+
+***a***
+```{r}
+tbill <- 100/97.3236
+
+timeToPayment <- c(.5,1,1.5,2)
+maturity <- as.Date(c("2012-11-15", "2013-02-15", "2013-11-15", "2014-02-15"), "%Y-%m-%d")
+price <- c(97.3236, 94.53473, 91.64757, 88.5045)
+
+spreadsheet <- data.frame(TimeToPayment=timeToPayment, Maturity=maturity, Price = price)
+spreadsheet$Rate <- 100/spreadsheet$Price 
+spreadsheet$Raised <- spreadsheet$Rate^spreadsheet$TimeToPayment
+spreadsheet$forwardPrice <- c(NA, spreadsheet$Raised[-1]/spreadsheet$Raised[-length(spreadsheet$Raised)])
+
+spreadsheet$forwardPrice[1] <- spreadsheet$Raised[1]^spreadsheet$TimeToPayment[1]/spreadsheet$Rate[1]
+
+spreadsheet$DiscountRate <- exp(-(tbill-1) * spreadsheet$TimeToPayment)
+spreadsheet$PresentValueOfPayments <- spreadsheet$DiscountRate * spreadsheet$forwardPrice
+
+swapPrice <- sum(spreadsheet$PresentValueOfPayments/sum(spreadsheet$DiscountRate))
+
+kable(head(spreadsheet))
+
+```
+***b***
+```{r}
+
+pr1yr <- spreadsheet$PresentValueOfPayments[2]/spreadsheet$PresentValueOfPayments[1]
+pr15yr <- spreadsheet$PresentValueOfPayments[3]/spreadsheet$PresentValueOfPayments[1]
+pr2yr <- spreadsheet$PresentValueOfPayments[4]/spreadsheet$PresentValueOfPayments[1]
+cat("1 y: ", pr1yr, " 1.5 yr: ", pr15yr, " 2 yr: " , pr2yr)
+```
+
+***c***
+```{r}
+newpr <- c(98.60475, 95.80252, 92.87673)
+newSpreadsheet <- data.frame(TimeToPayment=c(.25,.75,1.25),Price=newpr)
+newSpreadsheet$Rate <- 100/newSpreadsheet$Price 
+newSpreadsheet$Raised <- newSpreadsheet$Rate^newSpreadsheet$TimeToPayment
+newSpreadsheet$forwardPrice <- c(NA, newSpreadsheet$Raised[-1]/newSpreadsheet$Raised[-length(newSpreadsheet$Raised)])
+
+newSpreadsheet$forwardPrice[1] <- newSpreadsheet$Raised[1]^newSpreadsheet$TimeToPayment[1]/newSpreadsheet$Rate[1]
+newSpreadsheet$DiscountRate <- exp(-(tbill-1) * newSpreadsheet$TimeToPayment)
+newSpreadsheet$PresentValueOfPayments <- newSpreadsheet$DiscountRate * newSpreadsheet$forwardPrice
+head(newSpreadsheet)
+head(spreadsheet)
+sum(spreadsheet$PresentValueOfPayments[2:4] - newSpreadsheet$PresentValueOfPayments)
+```
+
+### Problem 13
+$$C = P + S - Ke^{-rT}$$
+$$C - P = Se^{-\delta*T} - Ke^{-r_f*T}$$
+$$0 \stackrel{?}{\ne} 19*e^{-.05*3/12} - 20*e^{-.12*3/12}$$
+$$ -.6444 = 19*e^{-.05*3/12} - 20*e^{-.12*3/12}$$
+
+Because C < P I would short the put and long the call.
+
+
+Action | t=0| t=T & St > K | t =T & St < K 
+----|-------|------------- | ------------ 
+Short the Call   | +C | K-St | 0
+Long the Put | -P | 0 | K-St
+Long Stock | $19*e^{-.05*3/12}$ | St | +St
+Borrow Tbills | $K*e^{-r_fT}$ | -K | -K
+Total | P-C | 0 | 0
+
+
+### Problem 14
+
+$$\frac{$}{€} = 1.328$$
+$$r_{€} = .23/100$$
+$$r_{$} = .17/100$$
+$$DecemberCall_{\frac{$1.325}{€}} = .0363$$
+$$DecemberCall_{\frac{$1.325}{€}} = .035$$
+$$Notional = 125,000€$$
+$$C - P = Se^{-\delta*T} - Ke^{-r_f*T}$$
+$$0.0013 \stackrel{?}{\ne} 1.328*e^{-.23/100*1/3} - 1.325*e^{-.17/100*1/3}$$
+$$0.0013 \stackrel{?}{\ne} .0027$$
+
+
+Action | t=0| t=T & St > K | t =T & St < K 
+----|-------|------------- | ------------ 
+Buy Call | -C | €-K | 0
+Short Put | +P | 0 | -K+€
+Short Euros | +€ | -€ | -€
+Lend Tailed Euros | $-K*e^{-r_fT}$ | +K | +K
+Total | -C+P | 0 | 0
