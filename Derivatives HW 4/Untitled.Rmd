@@ -1,0 +1,190 @@
+---
+title: "Derivatives 4"
+author: "Zachary Fogelson"
+date: "August 10, 2015"
+output: pdf_document
+---
+
+### Problem 15
+
+$$C - P = PV(forward - strike)$$
+$$T \approx \frac{2}{52}$$
+$$12.5 - 10.5 \stackrel{?}{\ne} e^{-\frac{.3}{100}*\frac{2}{52}}(1132 - 1135)$$
+$$2 \approx 2.00023$$
+
+Put call parity holds
+
+$$9.8 - 12.7 \stackrel{?}{\ne} e^{-\frac{.3}{100}*\frac{2}{52}} (1132 - 1135)$$
+$$2.9 \approx 3.000035$$
+
+Put call parity holds
+
+
+### Problem 16
+
+Examine the put and call prices for Sep.
+
+$$C = P = .67$$
+
+Therefore, because we have equally prices puts and calls and we know that put call parity holds.
+
+$$ S = Ke^{-rT}$$
+
+Because $Ke^{-rT}$ is exactly the future price, it follows that the future price is:
+
+2850
+
+### Problem 18
+
+Arbitrage Restrictions:
+
++ $C(K_1) > C(K_2)$ if $K_1 < K_2$
+
++ $K_2 - K_1 \geq C(K_1) - C(K_2)$
+
++ $C(K_2) \leq \lambda C(K_1) + (1 - \lambda)C(K_3)$ | $\lambda = \frac{K_3 - K_2}{K_3 - K_1}$
+
+
+$$\lambda = \frac{50 - 45}{50 -40}  = \frac{1}{2}$$
+
+$$2*(3.05) \stackrel{?}{\leq}  .57 + 5.08$$
+
+Because the left side of the equation is greater than the right hand side of the equation the arbitrage restrictions among July contracts fail to hold.
+
+$$50 - 45 = 5$$
+$$8.50 - 3.04 = 5.46$$
+
+Therefore, the arbitrage restrictions between the January calls fails to hold.
+
+
+### Problem 20
+
+**a**
+
+$$S = 100$$
+$$u = \frac{120}{100} = 1.2$$
+$$d = \frac{95}{100} = .95$$
+$$p = \frac{R - d}{u-d} = \frac{e^.08 - .95}{1.2-.95} = .53315$$ 
+$$\Delta = \frac{C_u  - C_d}{S(u-d)} = \frac{(120-50)  - (95-50)}{100(1.2-.95)}$$
+$$B = \frac{1.2 * (95-50) - .95*(120-50)}{e^.08(1.2-.95)}$$
+$$C = \Delta S + B = 53.8442$$
+
+**b**
+
+$$u = \frac{140}{100} = 1.4$$
+$$d = \frac{60}{100} = .6$$
+$$p = \frac{R - d}{u-d} = \frac{e^.08 - .6}{1.4-.6} = .604109$$ 
+$$\Delta = \frac{C_u  - C_d}{S(u-d)} = \frac{(140-50)  - (60-50)}{100(1.4-.6)} = 1$$
+$$B = \frac{1.4 * (60-50) - .6*(120-50)}{e^.08(1.4-.6)} = -46.1558$$
+$$C = \Delta S + B = 53.8842$$
+
+**c**
+$$u = \frac{140}{100} = 1.4$$
+$$d = \frac{40}{100} = .4$$
+$$\Delta = \frac{C_u  - C_d}{S(u-d)} = \frac{(140-50)  - (0)}{100(1.4-.4)} = .9$$
+$$B = \frac{1.4 * (0) - .4*(140-50)}{e^.08(1.4-.4)} = -33.2322$$
+$$C = \Delta S + B = 56.7678$$
+
+### Problem 21
+
++ $t_0 = 1500$
++ $ABC = 20$
++ $R = 1.25$
++ $u = \frac{40}{20} = 2$
++ $d = \frac{10}{20} = .5$
+
+$$p = \frac{R - d}{u-d} = \frac{1.25 - .5}{2-.5} = .5$$
+$$\Delta S + B = R^{-1} * (C_u \frac{R - d}{u -d} + C_d \frac{u - R}{u-d})$$
+
+Nodes | Stock Price | Option Price|
+------|-------------|-------------|
+uu    | $2^2 * 20$  | $1500*1.25^2 - 80^2 = -4056.25$
+ud    | $20$        | $1500*1.25^2 - 400 = 1943.75$
+dd    | $5$         | $1500*1.25^2 - 25 = 2318.75$
+d     | $10$        | $1.25^{-1}(\frac{1943.75*(1.25 - .5)}{2-.5} + \frac{2318.75*(2 -  1.25)}{2-.5}) = 1705$
+u     | $40$        |  $1.25^{-1}(\frac{-4056.25*(1.25 - .5)}{2-.5} + \frac{1943.75*(2 -  1.25)}{2-.5}) = -845$
+$P_0$ | $20$        | $1.25^{-1}(\frac{-845*(1.25 - .5)}{2-.5} + \frac{1705*(2 -  1.25)}{2-.5}) = 344$
+
+Because the present value on the option is positive, I would take the deal.
+
+
+### Problem 22
+
++ $S = 100$
++ $K = 75$
++ $R = 1.2$
++ $u = 1.5$
++ $d = .5$
+
+$$p = \frac{R - d}{u-d} = \frac{1.2-.5}{1.5-.5} = .7$$
+$$C_{t - \Delta t} = R^{-1}(p*C_u + (1-p)*C_d)$$
+
+American Call Formula:
+$$C_{AM} = max[S-K, \frac{pC_u + (1-p)C_d}{R}]$$
+
+**a**
+
+Nodes | Stock Price   | Option Price    | American Call Price      |
+------|---------------|-----------------| ------------------------ |
+uu    | $1.5^2 * 100$ | $225 - 75 = 150$| 150
+ud    | $1.5*.5 * 100$| $75-75 = 0$     | 0
+dd    | $.5^2 * 100$  | $0$             | 0
+d     | $.5 * 100$    | $\frac{.7*0 + .3*0}{1.2} = 0$ | 0
+u     | $1.5*100$     | $\frac{.7*150 + .3*0}{1.2} = 87.5$ | 87.5
+$P_0$ | $100$         | $\frac{.7*87.5 + .3*0}{1.2} = 51.042$ | 51.042
+
+Because the value of exercising the American call is always less than holding the option it will not be exercised early.
+
+**b**
+
+Nodes | Stock Price   | Option Price    | American Call Price      |
+------|---------------|-----------------| ------------------------ |
+uu    | 225           | 0               | 0
+ud    | 75            | 0               | 0
+dd    | 25            | 50              | 50
+d     | 50            | 12.5            | 25
+u     | 150           | 0               | 0
+$P_0$ | 100           | 3.125           | 6.25
+
+**c**
+
+$$C - P  = S - Ke^{-rT}$$
+$$51.04 - P  = 100 - \frac{75}{1.2}$$
+$$ P = 3.125 $$
+
+Clearly, put call parity holds for the european options.
+
+**d**
+
+I would short the American call, borrow at the prevailing risk free rate, and buy the American put. Because the put is priced to european put-call parity it is undervalued and therefore an arbitrage exists when I exercise early on the put.
+
+### Problem 23
+
+$$S = 100$$
+$$K = 60$$
+$$R = 1.2$$
+$$u = 1.5$$
+$$d = .5$$
+
+Based on the rule of "buy low, sell high," if the call is priced at $60 and its true value is known to be 51.05  then we would sell the call and buy the synthetic call by buying a put, buying the stock and borrowing.
+
+**i**
+
+Action    | t= 0          | t=T & St > K        | t =T & St < K | 
+-------   | ------        | --------------      | ------------- |
+sell call | +60           | $-(\Delta *St - B)$ | 0
+buy stock | $-\Delta *St$ | $\Delta *St$        | $\Delta *St$ 
+borrow    | $\frac{B}{R}$  | -B                 | -B
+
+
+$Total = 60 - 51.04 = 8.96$
+
+
+**ii**
+
+It is in our interest to liquidate our hedge because the arbitrage oppurtunity has passed. Furthermore, the call is now undervalued we should take advantage of the risk free arbitrage associated with that.
+
+
+**iii**
+
+Because the market has still not corrected, we would need to rebalance our portfolio to reflect the current mispricing. For example, if the price of the option had gone even further afield of its true price we would need to selll more of the calls and buy more of the synthetic. If the option was less overpriced we should wait until the market corrects itself.
